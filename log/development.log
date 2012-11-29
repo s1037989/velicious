@@ -1,0 +1,1086 @@
+[Wed Oct 31 21:07:44 2012] [info] Listening at "http://*:3003".
+[Wed Oct 31 21:07:47 2012] [debug] Your secret passphrase needs to be changed!!!
+[Wed Oct 31 21:07:47 2012] [debug] GET /v/faaf271d-8381-453b-a936-1349052b1bbb/System%20Info (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Wed Oct 31 21:07:47 2012] [debug] Routing to a callback.
+[Wed Oct 31 21:07:47 2012] [debug] Routing to a callback.
+[Wed Oct 31 21:07:47 2012] [debug] 3
+[Wed Oct 31 21:07:47 2012] [debug] 200 OK (0.018826s, 53.118/s).
+[Wed Oct 31 21:07:49 2012] [debug] GET /v/faaf271d-8381-453b-a936-1349052b1bbb/System%20Info (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Wed Oct 31 21:07:49 2012] [debug] Routing to a callback.
+[Wed Oct 31 21:07:49 2012] [debug] Routing to a callback.
+[Wed Oct 31 21:07:49 2012] [debug] 3
+[Wed Oct 31 21:07:49 2012] [debug] 200 OK (0.013761s, 72.669/s).
+[Wed Oct 31 21:07:52 2012] [debug] GET /v/faaf271d-8381-453b-a936-1349052b1bbb/System%20In (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Wed Oct 31 21:07:52 2012] [debug] Routing to a callback.
+[Wed Oct 31 21:07:52 2012] [debug] Routing to a callback.
+[Wed Oct 31 21:07:52 2012] [debug] 3
+[Wed Oct 31 21:07:52 2012] [debug] 200 OK (0.009335s, 107.124/s).
+[Wed Oct 31 21:08:23 2012] [info] Listening at "http://*:3003".
+[Wed Oct 31 21:08:35 2012] [debug] Your secret passphrase needs to be changed!!!
+[Wed Oct 31 21:08:35 2012] [debug] GET /v/faaf271d-8381-453b-a936-1349052b1bbb/System%20Info (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Wed Oct 31 21:08:35 2012] [debug] Routing to a callback.
+[Wed Oct 31 21:08:35 2012] [debug] Routing to a callback.
+[Wed Oct 31 21:08:35 2012] [debug] 3
+[Wed Oct 31 21:08:35 2012] [debug] 200 OK (0.018725s, 53.405/s).
+[Wed Oct 31 21:09:11 2012] [info] Listening at "http://*:3003".
+[Wed Oct 31 21:09:16 2012] [debug] Your secret passphrase needs to be changed!!!
+[Wed Oct 31 21:09:16 2012] [debug] GET /v/faaf271d-8381-453b-a936-1349052b1bbb/System%20Info (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Wed Oct 31 21:09:16 2012] [debug] Routing to a callback.
+[Wed Oct 31 21:09:16 2012] [debug] Routing to a callback.
+[Wed Oct 31 21:09:16 2012] [debug] 200 OK (0.022090s, 45.269/s).
+[Thu Nov  1 20:48:05 2012] [info] Listening at "http://*:3003".
+[Thu Nov  1 20:48:10 2012] [debug] Your secret passphrase needs to be changed!!!
+[Thu Nov  1 20:48:10 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 20:48:10 2012] [debug] Routing to a callback.
+[Thu Nov  1 20:48:10 2012] [debug] Routing to a callback.
+[Thu Nov  1 20:48:10 2012] [error] Not an ARRAY reference at /usr/local/share/perl/5.14.2/Data/Grouper.pm line 82.
+
+[Thu Nov  1 20:48:10 2012] [debug] Template "exception.development.html.ep" not found.
+[Thu Nov  1 20:48:10 2012] [debug] Template "exception.html.ep" not found.
+[Thu Nov  1 20:48:10 2012] [debug] Rendering inline template.
+[Thu Nov  1 20:48:10 2012] [debug] Rendering inline template.
+[Thu Nov  1 20:48:10 2012] [debug] 500 Internal Server Error (0.134306s, 7.446/s).
+[Thu Nov  1 20:50:04 2012] [debug] POST / (Velicio/12.10.30).
+[Thu Nov  1 20:50:04 2012] [debug] Routing to a callback.
+[Thu Nov  1 20:50:05 2012] [debug] 200 OK (0.925889s, 1.080/s).
+[Thu Nov  1 20:55:05 2012] [debug] POST / (Velicio/12.10.30).
+[Thu Nov  1 20:55:05 2012] [debug] Routing to a callback.
+[Thu Nov  1 20:55:06 2012] [debug] 200 OK (0.784434s, 1.275/s).
+[Thu Nov  1 21:00:04 2012] [debug] POST / (Velicio/12.10.30).
+[Thu Nov  1 21:00:04 2012] [debug] Routing to a callback.
+[Thu Nov  1 21:00:05 2012] [debug] 200 OK (0.798710s, 1.252/s).
+[Thu Nov  1 21:05:04 2012] [debug] POST / (Velicio/12.10.30).
+[Thu Nov  1 21:05:04 2012] [debug] Routing to a callback.
+[Thu Nov  1 21:05:05 2012] [debug] 200 OK (0.752599s, 1.329/s).
+[Thu Nov  1 21:09:51 2012] [info] Listening at "http://*:3003".
+[Thu Nov  1 21:09:59 2012] [debug] Your secret passphrase needs to be changed!!!
+[Thu Nov  1 21:09:59 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 21:09:59 2012] [debug] Routing to a callback.
+[Thu Nov  1 21:09:59 2012] [debug] Routing to a callback.
+[Thu Nov  1 21:09:59 2012] [error] Not an ARRAY reference at /usr/local/share/perl/5.14.2/Data/Grouper.pm line 82.
+
+[Thu Nov  1 21:09:59 2012] [debug] Template "exception.development.html.ep" not found.
+[Thu Nov  1 21:09:59 2012] [debug] Template "exception.html.ep" not found.
+[Thu Nov  1 21:09:59 2012] [debug] Rendering inline template.
+[Thu Nov  1 21:09:59 2012] [debug] Rendering inline template.
+[Thu Nov  1 21:09:59 2012] [debug] 500 Internal Server Error (0.093999s, 10.638/s).
+[Thu Nov  1 21:10:04 2012] [debug] POST / (Velicio/12.10.30).
+[Thu Nov  1 21:10:04 2012] [debug] Routing to a callback.
+[Thu Nov  1 21:10:05 2012] [debug] 200 OK (0.954811s, 1.047/s).
+[Thu Nov  1 21:11:13 2012] [info] Listening at "http://*:3003".
+[Thu Nov  1 21:11:15 2012] [debug] Your secret passphrase needs to be changed!!!
+[Thu Nov  1 21:11:15 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 21:11:15 2012] [debug] Routing to a callback.
+[Thu Nov  1 21:11:15 2012] [debug] Routing to a callback.
+[Thu Nov  1 21:11:16 2012] [error] Not an ARRAY reference at /usr/local/share/perl/5.14.2/Data/Grouper.pm line 82.
+
+[Thu Nov  1 21:11:16 2012] [debug] Template "exception.development.html.ep" not found.
+[Thu Nov  1 21:11:16 2012] [debug] Template "exception.html.ep" not found.
+[Thu Nov  1 21:11:16 2012] [debug] Rendering inline template.
+[Thu Nov  1 21:11:16 2012] [debug] Rendering inline template.
+[Thu Nov  1 21:11:16 2012] [debug] 500 Internal Server Error (0.137861s, 7.254/s).
+[Thu Nov  1 21:11:35 2012] [info] Listening at "http://*:3003".
+[Thu Nov  1 21:11:38 2012] [debug] Your secret passphrase needs to be changed!!!
+[Thu Nov  1 21:11:38 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 21:11:38 2012] [debug] Routing to a callback.
+[Thu Nov  1 21:11:38 2012] [debug] Routing to a callback.
+[Thu Nov  1 21:11:38 2012] [error] Not an ARRAY reference at /usr/local/share/perl/5.14.2/Data/Grouper.pm line 82.
+
+[Thu Nov  1 21:11:38 2012] [debug] Template "exception.development.html.ep" not found.
+[Thu Nov  1 21:11:38 2012] [debug] Template "exception.html.ep" not found.
+[Thu Nov  1 21:11:38 2012] [debug] Rendering inline template.
+[Thu Nov  1 21:11:38 2012] [debug] Rendering inline template.
+[Thu Nov  1 21:11:38 2012] [debug] 500 Internal Server Error (0.133294s, 7.502/s).
+[Thu Nov  1 21:15:05 2012] [debug] POST / (Velicio/12.10.30).
+[Thu Nov  1 21:15:05 2012] [debug] Routing to a callback.
+[Thu Nov  1 21:15:05 2012] [debug] 200 OK (0.902698s, 1.108/s).
+[Thu Nov  1 21:20:05 2012] [debug] POST / (Velicio/12.10.30).
+[Thu Nov  1 21:20:05 2012] [debug] Routing to a callback.
+[Thu Nov  1 21:20:06 2012] [debug] 200 OK (0.809667s, 1.235/s).
+[Thu Nov  1 21:25:10 2012] [info] Listening at "http://*:3003".
+[Thu Nov  1 21:25:12 2012] [debug] Your secret passphrase needs to be changed!!!
+[Thu Nov  1 21:25:12 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 21:25:12 2012] [debug] Routing to a callback.
+[Thu Nov  1 21:25:12 2012] [debug] Routing to a callback.
+[Thu Nov  1 21:25:12 2012] [debug] Rendering template "v.html.ep" from DATA section.
+[Thu Nov  1 21:25:12 2012] [debug] 200 OK (0.034733s, 28.791/s).
+[Thu Nov  1 21:26:24 2012] [info] Listening at "http://*:3003".
+[Thu Nov  1 21:26:27 2012] [debug] Your secret passphrase needs to be changed!!!
+[Thu Nov  1 21:26:27 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 21:26:27 2012] [debug] Routing to a callback.
+[Thu Nov  1 21:26:27 2012] [debug] Routing to a callback.
+[Thu Nov  1 21:26:27 2012] [debug] Rendering template "v.html.ep" from DATA section.
+[Thu Nov  1 21:26:27 2012] [debug] 200 OK (0.035579s, 28.106/s).
+[Thu Nov  1 21:30:05 2012] [debug] POST / (Velicio/12.10.30).
+[Thu Nov  1 21:30:05 2012] [debug] Routing to a callback.
+[Thu Nov  1 21:30:06 2012] [debug] 200 OK (0.917174s, 1.090/s).
+[Thu Nov  1 21:35:04 2012] [debug] POST / (Velicio/12.10.30).
+[Thu Nov  1 21:35:04 2012] [debug] Routing to a callback.
+[Thu Nov  1 21:35:05 2012] [debug] 200 OK (0.801604s, 1.247/s).
+[Thu Nov  1 21:40:05 2012] [debug] POST / (Velicio/12.10.30).
+[Thu Nov  1 21:40:05 2012] [debug] Routing to a callback.
+[Thu Nov  1 21:40:06 2012] [debug] 200 OK (0.790443s, 1.265/s).
+[Thu Nov  1 21:44:40 2012] [info] Listening at "http://*:3003".
+[Thu Nov  1 21:44:43 2012] [debug] Your secret passphrase needs to be changed!!!
+[Thu Nov  1 21:44:43 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 21:44:43 2012] [debug] Routing to a callback.
+[Thu Nov  1 21:44:43 2012] [debug] Routing to a callback.
+[Thu Nov  1 21:44:43 2012] [debug] Rendering template "v.html.ep" from DATA section.
+[Thu Nov  1 21:44:43 2012] [debug] 200 OK (0.035430s, 28.225/s).
+[Thu Nov  1 21:44:44 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 21:44:44 2012] [debug] Routing to a callback.
+[Thu Nov  1 21:44:44 2012] [debug] Routing to a callback.
+[Thu Nov  1 21:44:44 2012] [debug] Careful, "format" is a reserved stash value.
+[Thu Nov  1 21:44:44 2012] [debug] 200 OK (0.068600s, 14.577/s).
+[Thu Nov  1 21:45:04 2012] [debug] POST / (Velicio/12.10.30).
+[Thu Nov  1 21:45:04 2012] [debug] Routing to a callback.
+[Thu Nov  1 21:45:05 2012] [debug] 200 OK (0.904637s, 1.105/s).
+[Thu Nov  1 21:45:27 2012] [info] Listening at "http://*:3003".
+[Thu Nov  1 21:45:30 2012] [debug] Your secret passphrase needs to be changed!!!
+[Thu Nov  1 21:45:30 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 21:45:30 2012] [debug] Routing to a callback.
+[Thu Nov  1 21:45:30 2012] [debug] Routing to a callback.
+[Thu Nov  1 21:45:30 2012] [debug] Rendering template "v.html.ep" from DATA section.
+[Thu Nov  1 21:45:30 2012] [debug] 200 OK (0.033203s, 30.118/s).
+[Thu Nov  1 21:45:31 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 21:45:31 2012] [debug] Routing to a callback.
+[Thu Nov  1 21:45:31 2012] [debug] Routing to a callback.
+[Thu Nov  1 21:45:31 2012] [debug] Careful, "format" is a reserved stash value.
+[Thu Nov  1 21:45:31 2012] [debug] 200 OK (0.070236s, 14.238/s).
+[Thu Nov  1 21:49:06 2012] [info] Listening at "http://*:3003".
+[Thu Nov  1 21:49:12 2012] [debug] Your secret passphrase needs to be changed!!!
+[Thu Nov  1 21:49:12 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 21:49:12 2012] [debug] Routing to a callback.
+[Thu Nov  1 21:49:12 2012] [debug] Routing to a callback.
+[Thu Nov  1 21:49:12 2012] [debug] Rendering template "v.html.ep" from DATA section.
+[Thu Nov  1 21:49:12 2012] [debug] 200 OK (0.034229s, 29.215/s).
+[Thu Nov  1 21:49:12 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 21:49:12 2012] [debug] Routing to a callback.
+[Thu Nov  1 21:49:12 2012] [debug] Routing to a callback.
+[Thu Nov  1 21:49:12 2012] [debug] Careful, "format" is a reserved stash value.
+[Thu Nov  1 21:49:12 2012] [debug] 200 OK (0.068397s, 14.621/s).
+[Thu Nov  1 21:50:05 2012] [debug] POST / (Velicio/12.10.30).
+[Thu Nov  1 21:50:05 2012] [debug] Routing to a callback.
+[Thu Nov  1 21:50:06 2012] [debug] 200 OK (0.893028s, 1.120/s).
+[Thu Nov  1 21:52:05 2012] [info] Listening at "http://*:3003".
+[Thu Nov  1 21:52:08 2012] [debug] Your secret passphrase needs to be changed!!!
+[Thu Nov  1 21:52:08 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 21:52:08 2012] [debug] Routing to a callback.
+[Thu Nov  1 21:52:08 2012] [debug] Routing to a callback.
+[Thu Nov  1 21:52:08 2012] [debug] Rendering template "v.html.ep" from DATA section.
+[Thu Nov  1 21:52:08 2012] [debug] 200 OK (0.033851s, 29.541/s).
+[Thu Nov  1 21:52:08 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 21:52:08 2012] [debug] Routing to a callback.
+[Thu Nov  1 21:52:08 2012] [debug] Routing to a callback.
+[Thu Nov  1 21:52:08 2012] [debug] Careful, "format" is a reserved stash value.
+[Thu Nov  1 21:52:09 2012] [debug] 200 OK (0.068662s, 14.564/s).
+[Thu Nov  1 21:53:06 2012] [info] Listening at "http://*:3003".
+[Thu Nov  1 21:53:08 2012] [debug] Your secret passphrase needs to be changed!!!
+[Thu Nov  1 21:53:08 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 21:53:08 2012] [debug] Routing to a callback.
+[Thu Nov  1 21:53:08 2012] [debug] Routing to a callback.
+[Thu Nov  1 21:53:08 2012] [debug] Rendering template "v.html.ep" from DATA section.
+[Thu Nov  1 21:53:08 2012] [debug] 200 OK (0.033198s, 30.122/s).
+[Thu Nov  1 21:53:09 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 21:53:09 2012] [debug] Routing to a callback.
+[Thu Nov  1 21:53:09 2012] [debug] Routing to a callback.
+[Thu Nov  1 21:53:09 2012] [debug] Careful, "format" is a reserved stash value.
+[Thu Nov  1 21:53:09 2012] [debug] 200 OK (0.066800s, 14.970/s).
+[Thu Nov  1 21:54:04 2012] [info] Listening at "http://*:3003".
+[Thu Nov  1 21:54:05 2012] [debug] Your secret passphrase needs to be changed!!!
+[Thu Nov  1 21:54:05 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 21:54:05 2012] [debug] Routing to a callback.
+[Thu Nov  1 21:54:05 2012] [debug] Routing to a callback.
+[Thu Nov  1 21:54:05 2012] [debug] Rendering template "v.html.ep" from DATA section.
+[Thu Nov  1 21:54:05 2012] [debug] 200 OK (0.032054s, 31.197/s).
+[Thu Nov  1 21:54:06 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 21:54:06 2012] [debug] Routing to a callback.
+[Thu Nov  1 21:54:06 2012] [debug] Routing to a callback.
+[Thu Nov  1 21:54:06 2012] [debug] Careful, "format" is a reserved stash value.
+[Thu Nov  1 21:54:06 2012] [debug] 200 OK (0.067306s, 14.858/s).
+[Thu Nov  1 21:55:04 2012] [debug] POST / (Velicio/12.10.30).
+[Thu Nov  1 21:55:04 2012] [debug] Routing to a callback.
+[Thu Nov  1 21:55:05 2012] [debug] 200 OK (0.922107s, 1.084/s).
+[Thu Nov  1 22:00:05 2012] [debug] POST / (Velicio/12.10.30).
+[Thu Nov  1 22:00:05 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:00:05 2012] [debug] 200 OK (0.782922s, 1.277/s).
+[Thu Nov  1 22:00:14 2012] [info] Listening at "http://*:3003".
+[Thu Nov  1 22:00:18 2012] [debug] Your secret passphrase needs to be changed!!!
+[Thu Nov  1 22:00:18 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:00:18 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:00:18 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:00:18 2012] [debug] Rendering template "v.html.ep" from DATA section.
+[Thu Nov  1 22:00:18 2012] [debug] 200 OK (0.034420s, 29.053/s).
+[Thu Nov  1 22:00:19 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:00:19 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:00:19 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:00:19 2012] [debug] Careful, "format" is a reserved stash value.
+[Thu Nov  1 22:00:19 2012] [debug] 200 OK (0.071831s, 13.922/s).
+[Thu Nov  1 22:01:04 2012] [info] Listening at "http://*:3003".
+[Thu Nov  1 22:01:09 2012] [debug] Your secret passphrase needs to be changed!!!
+[Thu Nov  1 22:01:09 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:01:09 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:01:09 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:01:09 2012] [debug] Rendering template "v.html.ep" from DATA section.
+[Thu Nov  1 22:01:09 2012] [debug] 200 OK (0.034336s, 29.124/s).
+[Thu Nov  1 22:01:10 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:01:10 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:01:10 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:01:10 2012] [debug] Careful, "format" is a reserved stash value.
+[Thu Nov  1 22:01:10 2012] [debug] 200 OK (0.070958s, 14.093/s).
+[Thu Nov  1 22:01:50 2012] [info] Listening at "http://*:3003".
+[Thu Nov  1 22:01:52 2012] [debug] Your secret passphrase needs to be changed!!!
+[Thu Nov  1 22:01:52 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:01:52 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:01:52 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:01:52 2012] [debug] Rendering template "v.html.ep" from DATA section.
+[Thu Nov  1 22:01:52 2012] [debug] 200 OK (0.035970s, 27.801/s).
+[Thu Nov  1 22:01:52 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:01:52 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:01:52 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:01:52 2012] [debug] Careful, "format" is a reserved stash value.
+[Thu Nov  1 22:01:53 2012] [debug] 200 OK (0.068294s, 14.643/s).
+[Thu Nov  1 22:05:05 2012] [debug] POST / (Velicio/12.10.30).
+[Thu Nov  1 22:05:05 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:05:06 2012] [debug] 200 OK (0.917341s, 1.090/s).
+[Thu Nov  1 22:09:00 2012] [info] Listening at "http://*:3003".
+[Thu Nov  1 22:09:07 2012] [debug] Your secret passphrase needs to be changed!!!
+[Thu Nov  1 22:09:07 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:09:07 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:09:07 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:09:07 2012] [debug] Rendering template "v.html.ep" from DATA section.
+[Thu Nov  1 22:09:07 2012] [debug] 200 OK (0.035212s, 28.399/s).
+[Thu Nov  1 22:09:08 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:09:08 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:09:08 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:09:08 2012] [debug] Careful, "format" is a reserved stash value.
+[Thu Nov  1 22:09:08 2012] [debug] 200 OK (0.068578s, 14.582/s).
+[Thu Nov  1 22:10:04 2012] [debug] POST / (Velicio/12.10.30).
+[Thu Nov  1 22:10:04 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:10:05 2012] [debug] 200 OK (0.906779s, 1.103/s).
+[Thu Nov  1 22:13:03 2012] [info] Listening at "http://*:3003".
+[Thu Nov  1 22:13:07 2012] [debug] Your secret passphrase needs to be changed!!!
+[Thu Nov  1 22:13:07 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:13:07 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:13:07 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:13:07 2012] [debug] Rendering template "v.html.ep" from DATA section.
+[Thu Nov  1 22:13:07 2012] [debug] 200 OK (0.034277s, 29.174/s).
+[Thu Nov  1 22:13:08 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:13:08 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:13:08 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:13:08 2012] [debug] Careful, "format" is a reserved stash value.
+[Thu Nov  1 22:13:08 2012] [debug] 200 OK (0.067409s, 14.835/s).
+[Thu Nov  1 22:13:51 2012] [info] Listening at "http://*:3003".
+[Thu Nov  1 22:13:53 2012] [debug] Your secret passphrase needs to be changed!!!
+[Thu Nov  1 22:13:53 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:13:53 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:13:53 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:13:53 2012] [debug] Rendering template "v.html.ep" from DATA section.
+[Thu Nov  1 22:13:53 2012] [debug] 200 OK (0.034392s, 29.077/s).
+[Thu Nov  1 22:13:54 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:13:54 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:13:54 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:13:54 2012] [debug] Careful, "format" is a reserved stash value.
+[Thu Nov  1 22:13:54 2012] [debug] 200 OK (0.070535s, 14.177/s).
+[Thu Nov  1 22:15:05 2012] [debug] POST / (Velicio/12.10.30).
+[Thu Nov  1 22:15:05 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:15:06 2012] [debug] 200 OK (0.925875s, 1.080/s).
+[Thu Nov  1 22:15:18 2012] [info] Listening at "http://*:3003".
+[Thu Nov  1 22:15:21 2012] [debug] Your secret passphrase needs to be changed!!!
+[Thu Nov  1 22:15:21 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:15:21 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:15:21 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:15:21 2012] [debug] Rendering template "v.html.ep" from DATA section.
+[Thu Nov  1 22:15:21 2012] [debug] 200 OK (0.033037s, 30.269/s).
+[Thu Nov  1 22:15:22 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:15:22 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:15:22 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:15:22 2012] [debug] Careful, "format" is a reserved stash value.
+[Thu Nov  1 22:15:22 2012] [debug] 200 OK (0.068927s, 14.508/s).
+[Thu Nov  1 22:16:31 2012] [info] Listening at "http://*:3003".
+[Thu Nov  1 22:16:35 2012] [debug] Your secret passphrase needs to be changed!!!
+[Thu Nov  1 22:16:35 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:16:35 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:16:35 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:16:35 2012] [debug] Rendering template "v.html.ep" from DATA section.
+[Thu Nov  1 22:16:35 2012] [debug] 200 OK (0.032423s, 30.842/s).
+[Thu Nov  1 22:16:35 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:16:35 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:16:35 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:16:35 2012] [debug] Careful, "format" is a reserved stash value.
+[Thu Nov  1 22:16:35 2012] [debug] 200 OK (0.066647s, 15.004/s).
+[Thu Nov  1 22:18:14 2012] [info] Listening at "http://*:3003".
+[Thu Nov  1 22:18:20 2012] [debug] Your secret passphrase needs to be changed!!!
+[Thu Nov  1 22:18:20 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:18:20 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:18:20 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:18:20 2012] [debug] Rendering template "v.html.ep" from DATA section.
+[Thu Nov  1 22:18:20 2012] [debug] 200 OK (0.032912s, 30.384/s).
+[Thu Nov  1 22:18:21 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:18:21 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:18:21 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:18:21 2012] [debug] Careful, "format" is a reserved stash value.
+[Thu Nov  1 22:18:21 2012] [debug] 200 OK (0.067970s, 14.712/s).
+[Thu Nov  1 22:20:04 2012] [debug] POST / (Velicio/12.10.30).
+[Thu Nov  1 22:20:04 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:20:05 2012] [debug] 200 OK (0.897380s, 1.114/s).
+[Thu Nov  1 22:21:11 2012] [info] Listening at "http://*:3003".
+[Thu Nov  1 22:21:30 2012] [debug] Your secret passphrase needs to be changed!!!
+[Thu Nov  1 22:21:30 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:21:30 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:21:30 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:21:30 2012] [debug] Rendering template "v.html.ep" from DATA section.
+[Thu Nov  1 22:21:30 2012] [debug] 200 OK (0.035733s, 27.985/s).
+[Thu Nov  1 22:21:31 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:21:31 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:21:31 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:21:31 2012] [debug] Careful, "format" is a reserved stash value.
+[Thu Nov  1 22:21:31 2012] [debug] 200 OK (0.067930s, 14.721/s).
+[Thu Nov  1 22:21:55 2012] [info] Listening at "http://*:3003".
+[Thu Nov  1 22:21:57 2012] [debug] Your secret passphrase needs to be changed!!!
+[Thu Nov  1 22:21:57 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:21:57 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:21:57 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:21:57 2012] [debug] Rendering template "v.html.ep" from DATA section.
+[Thu Nov  1 22:21:57 2012] [debug] 200 OK (0.033341s, 29.993/s).
+[Thu Nov  1 22:21:58 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:21:58 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:21:58 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:21:58 2012] [debug] Careful, "format" is a reserved stash value.
+[Thu Nov  1 22:21:58 2012] [debug] 200 OK (0.071063s, 14.072/s).
+[Thu Nov  1 22:25:05 2012] [debug] POST / (Velicio/12.10.30).
+[Thu Nov  1 22:25:05 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:25:05 2012] [debug] 200 OK (0.949049s, 1.054/s).
+[Thu Nov  1 22:26:56 2012] [info] Listening at "http://*:3003".
+[Thu Nov  1 22:27:00 2012] [debug] Your secret passphrase needs to be changed!!!
+[Thu Nov  1 22:27:00 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:27:00 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:27:00 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:27:00 2012] [debug] Rendering template "v.html.ep" from DATA section.
+[Thu Nov  1 22:27:00 2012] [debug] 200 OK (0.034680s, 28.835/s).
+[Thu Nov  1 22:27:01 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:27:01 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:27:01 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:27:01 2012] [debug] Careful, "format" is a reserved stash value.
+[Thu Nov  1 22:27:01 2012] [debug] 200 OK (0.069167s, 14.458/s).
+[Thu Nov  1 22:29:01 2012] [info] Listening at "http://*:3003".
+[Thu Nov  1 22:29:05 2012] [debug] Your secret passphrase needs to be changed!!!
+[Thu Nov  1 22:29:05 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:29:05 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:29:05 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:29:05 2012] [debug] Rendering template "v.html.ep" from DATA section.
+[Thu Nov  1 22:29:05 2012] [debug] 200 OK (0.034903s, 28.651/s).
+[Thu Nov  1 22:29:06 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:29:06 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:29:06 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:29:06 2012] [debug] Careful, "format" is a reserved stash value.
+[Thu Nov  1 22:29:06 2012] [debug] 200 OK (0.070582s, 14.168/s).
+[Thu Nov  1 22:29:24 2012] [info] Listening at "http://*:3003".
+[Thu Nov  1 22:29:26 2012] [debug] Your secret passphrase needs to be changed!!!
+[Thu Nov  1 22:29:26 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:29:26 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:29:26 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:29:26 2012] [debug] Rendering template "v.html.ep" from DATA section.
+[Thu Nov  1 22:29:26 2012] [debug] 200 OK (0.035124s, 28.471/s).
+[Thu Nov  1 22:29:27 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:29:27 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:29:27 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:29:27 2012] [debug] Careful, "format" is a reserved stash value.
+[Thu Nov  1 22:29:27 2012] [debug] 200 OK (0.068609s, 14.575/s).
+[Thu Nov  1 22:30:05 2012] [debug] Your secret passphrase needs to be changed!!!
+[Thu Nov  1 22:30:05 2012] [debug] POST / (Velicio/12.10.30).
+[Thu Nov  1 22:30:05 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:30:12 2012] [debug] 200 OK (6.189713s, 0.162/s).
+[Thu Nov  1 22:30:14 2012] [info] Listening at "http://*:3003".
+[Thu Nov  1 22:30:17 2012] [debug] Your secret passphrase needs to be changed!!!
+[Thu Nov  1 22:30:17 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:30:17 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:30:17 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:30:17 2012] [debug] Rendering template "v.html.ep" from DATA section.
+[Thu Nov  1 22:30:17 2012] [debug] 200 OK (0.033484s, 29.865/s).
+[Thu Nov  1 22:30:18 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:30:18 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:30:18 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:30:18 2012] [debug] Careful, "format" is a reserved stash value.
+[Thu Nov  1 22:30:18 2012] [debug] 200 OK (0.073251s, 13.652/s).
+[Thu Nov  1 22:31:50 2012] [info] Listening at "http://*:3003".
+[Thu Nov  1 22:31:53 2012] [debug] Your secret passphrase needs to be changed!!!
+[Thu Nov  1 22:31:53 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:31:53 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:31:53 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:31:53 2012] [debug] Rendering template "v.html.ep" from DATA section.
+[Thu Nov  1 22:31:53 2012] [debug] 200 OK (0.033550s, 29.806/s).
+[Thu Nov  1 22:31:54 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:31:54 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:31:54 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:31:54 2012] [debug] Careful, "format" is a reserved stash value.
+[Thu Nov  1 22:31:54 2012] [debug] 200 OK (0.066854s, 14.958/s).
+[Thu Nov  1 22:32:31 2012] [info] Listening at "http://*:3003".
+[Thu Nov  1 22:32:33 2012] [debug] Your secret passphrase needs to be changed!!!
+[Thu Nov  1 22:32:33 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:32:33 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:32:33 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:32:33 2012] [debug] Rendering template "v.html.ep" from DATA section.
+[Thu Nov  1 22:32:33 2012] [debug] 200 OK (0.032741s, 30.543/s).
+[Thu Nov  1 22:32:34 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:32:34 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:32:34 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:32:34 2012] [debug] Careful, "format" is a reserved stash value.
+[Thu Nov  1 22:32:34 2012] [debug] 200 OK (0.067630s, 14.786/s).
+[Thu Nov  1 22:35:05 2012] [debug] Your secret passphrase needs to be changed!!!
+[Thu Nov  1 22:35:05 2012] [debug] POST / (Velicio/12.10.30).
+[Thu Nov  1 22:35:05 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:35:06 2012] [debug] 200 OK (1.008838s, 0.991/s).
+[Thu Nov  1 22:38:00 2012] [info] Listening at "http://*:3003".
+[Thu Nov  1 22:38:04 2012] [debug] Your secret passphrase needs to be changed!!!
+[Thu Nov  1 22:38:04 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:38:04 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:38:04 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:38:04 2012] [debug] Rendering template "v.html.ep" from DATA section.
+[Thu Nov  1 22:38:04 2012] [debug] 200 OK (0.033599s, 29.763/s).
+[Thu Nov  1 22:38:05 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:38:05 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:38:05 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:38:05 2012] [debug] Careful, "format" is a reserved stash value.
+[Thu Nov  1 22:38:05 2012] [debug] 200 OK (0.066715s, 14.989/s).
+[Thu Nov  1 22:39:48 2012] [info] Listening at "http://*:3003".
+[Thu Nov  1 22:39:50 2012] [debug] Your secret passphrase needs to be changed!!!
+[Thu Nov  1 22:39:50 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:39:50 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:39:50 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:39:50 2012] [debug] Rendering template "v.html.ep" from DATA section.
+[Thu Nov  1 22:39:50 2012] [debug] 200 OK (0.033425s, 29.918/s).
+[Thu Nov  1 22:39:50 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:39:50 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:39:50 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:39:50 2012] [debug] Careful, "format" is a reserved stash value.
+[Thu Nov  1 22:39:50 2012] [debug] 200 OK (0.066054s, 15.139/s).
+[Thu Nov  1 22:40:04 2012] [debug] POST / (Velicio/12.10.30).
+[Thu Nov  1 22:40:04 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:40:05 2012] [debug] 200 OK (0.886153s, 1.128/s).
+[Thu Nov  1 22:41:09 2012] [info] Listening at "http://*:3003".
+[Thu Nov  1 22:41:11 2012] [debug] Your secret passphrase needs to be changed!!!
+[Thu Nov  1 22:41:11 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:41:11 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:41:11 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:41:11 2012] [debug] Rendering template "v.html.ep" from DATA section.
+[Thu Nov  1 22:41:11 2012] [debug] 200 OK (0.035561s, 28.121/s).
+[Thu Nov  1 22:41:12 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:41:12 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:41:12 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:41:12 2012] [debug] Careful, "format" is a reserved stash value.
+[Thu Nov  1 22:41:12 2012] [debug] 200 OK (0.070954s, 14.094/s).
+[Thu Nov  1 22:43:26 2012] [info] Listening at "http://*:3003".
+[Thu Nov  1 22:43:28 2012] [debug] Your secret passphrase needs to be changed!!!
+[Thu Nov  1 22:43:28 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:43:28 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:43:28 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:43:28 2012] [debug] Rendering template "v.html.ep" from DATA section.
+[Thu Nov  1 22:43:28 2012] [debug] 200 OK (0.033414s, 29.928/s).
+[Thu Nov  1 22:43:29 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:43:29 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:43:29 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:43:29 2012] [debug] Careful, "format" is a reserved stash value.
+[Thu Nov  1 22:43:29 2012] [debug] 200 OK (0.067930s, 14.721/s).
+[Thu Nov  1 22:45:05 2012] [debug] POST / (Velicio/12.10.30).
+[Thu Nov  1 22:45:05 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:45:05 2012] [debug] 200 OK (0.889452s, 1.124/s).
+[Thu Nov  1 22:47:41 2012] [info] Listening at "http://*:3003".
+[Thu Nov  1 22:47:46 2012] [debug] Your secret passphrase needs to be changed!!!
+[Thu Nov  1 22:47:47 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:47:47 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:47:47 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:47:47 2012] [debug] Rendering template "v.html.ep" from DATA section.
+[Thu Nov  1 22:47:47 2012] [debug] 200 OK (0.034714s, 28.807/s).
+[Thu Nov  1 22:47:47 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:47:47 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:47:47 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:47:47 2012] [debug] Careful, "format" is a reserved stash value.
+[Thu Nov  1 22:47:47 2012] [debug] 200 OK (0.069623s, 14.363/s).
+[Thu Nov  1 22:49:31 2012] [info] Listening at "http://*:3003".
+[Thu Nov  1 22:49:34 2012] [debug] Your secret passphrase needs to be changed!!!
+[Thu Nov  1 22:49:34 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:49:34 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:49:34 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:49:34 2012] [debug] Rendering template "v.html.ep" from DATA section.
+[Thu Nov  1 22:49:34 2012] [debug] 200 OK (0.033699s, 29.674/s).
+[Thu Nov  1 22:49:35 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:49:35 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:49:35 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:49:35 2012] [debug] Careful, "format" is a reserved stash value.
+[Thu Nov  1 22:49:35 2012] [debug] 200 OK (0.069460s, 14.397/s).
+[Thu Nov  1 22:50:05 2012] [debug] POST / (Velicio/12.10.30).
+[Thu Nov  1 22:50:05 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:50:06 2012] [debug] 200 OK (0.894528s, 1.118/s).
+[Thu Nov  1 22:50:59 2012] [info] Listening at "http://*:3003".
+[Thu Nov  1 22:51:01 2012] [debug] Your secret passphrase needs to be changed!!!
+[Thu Nov  1 22:51:01 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:51:01 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:51:01 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:51:01 2012] [debug] Rendering template "v.html.ep" from DATA section.
+[Thu Nov  1 22:51:01 2012] [debug] 200 OK (0.033535s, 29.820/s).
+[Thu Nov  1 22:51:02 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:51:02 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:51:02 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:51:02 2012] [debug] Careful, "format" is a reserved stash value.
+[Thu Nov  1 22:51:02 2012] [debug] 200 OK (0.070224s, 14.240/s).
+[Thu Nov  1 22:55:00 2012] [info] Listening at "http://*:3003".
+[Thu Nov  1 22:55:02 2012] [debug] Your secret passphrase needs to be changed!!!
+[Thu Nov  1 22:55:02 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:55:02 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:55:02 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:55:02 2012] [debug] Rendering template "v.html.ep" from DATA section.
+[Thu Nov  1 22:55:02 2012] [debug] 200 OK (0.060390s, 16.559/s).
+[Thu Nov  1 22:55:03 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 22:55:03 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:55:03 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:55:03 2012] [debug] Careful, "format" is a reserved stash value.
+[Thu Nov  1 22:55:03 2012] [debug] 200 OK (0.128679s, 7.771/s).
+[Thu Nov  1 22:55:05 2012] [debug] POST / (Velicio/12.10.30).
+[Thu Nov  1 22:55:05 2012] [debug] Routing to a callback.
+[Thu Nov  1 22:55:05 2012] [debug] 200 OK (0.889074s, 1.125/s).
+[Thu Nov  1 23:00:05 2012] [debug] POST / (Velicio/12.10.30).
+[Thu Nov  1 23:00:05 2012] [debug] Routing to a callback.
+[Thu Nov  1 23:00:06 2012] [debug] 200 OK (0.775159s, 1.290/s).
+[Thu Nov  1 23:05:04 2012] [debug] POST / (Velicio/12.10.30).
+[Thu Nov  1 23:05:04 2012] [debug] Routing to a callback.
+[Thu Nov  1 23:05:05 2012] [debug] 200 OK (0.772757s, 1.294/s).
+[Thu Nov  1 23:10:05 2012] [debug] POST / (Velicio/12.10.30).
+[Thu Nov  1 23:10:05 2012] [debug] Routing to a callback.
+[Thu Nov  1 23:10:05 2012] [debug] 200 OK (0.784743s, 1.274/s).
+[Thu Nov  1 23:11:45 2012] [info] Listening at "http://*:3003".
+[Thu Nov  1 23:11:48 2012] [debug] Your secret passphrase needs to be changed!!!
+[Thu Nov  1 23:11:49 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 23:11:49 2012] [debug] Routing to a callback.
+[Thu Nov  1 23:11:49 2012] [debug] Routing to a callback.
+[Thu Nov  1 23:11:49 2012] [debug] Rendering template "v.html.ep" from DATA section.
+[Thu Nov  1 23:11:49 2012] [debug] 200 OK (0.036125s, 27.682/s).
+[Thu Nov  1 23:11:49 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 23:11:49 2012] [debug] Routing to a callback.
+[Thu Nov  1 23:11:49 2012] [debug] Routing to a callback.
+[Thu Nov  1 23:11:49 2012] [debug] Careful, "format" is a reserved stash value.
+[Thu Nov  1 23:11:49 2012] [debug] 200 OK (0.072039s, 13.881/s).
+[Thu Nov  1 23:15:04 2012] [debug] POST / (Velicio/12.10.30).
+[Thu Nov  1 23:15:04 2012] [debug] Routing to a callback.
+[Thu Nov  1 23:15:05 2012] [debug] 200 OK (0.954187s, 1.048/s).
+[Thu Nov  1 23:20:04 2012] [debug] POST / (Velicio/12.10.30).
+[Thu Nov  1 23:20:04 2012] [debug] Routing to a callback.
+[Thu Nov  1 23:20:05 2012] [debug] 200 OK (0.784420s, 1.275/s).
+[Thu Nov  1 23:25:05 2012] [debug] POST / (Velicio/12.10.30).
+[Thu Nov  1 23:25:05 2012] [debug] Routing to a callback.
+[Thu Nov  1 23:25:06 2012] [debug] 200 OK (0.792061s, 1.263/s).
+[Thu Nov  1 23:30:04 2012] [debug] POST / (Velicio/12.10.30).
+[Thu Nov  1 23:30:04 2012] [debug] Routing to a callback.
+[Thu Nov  1 23:30:05 2012] [debug] 200 OK (0.782620s, 1.278/s).
+[Thu Nov  1 23:35:05 2012] [debug] POST / (Velicio/12.10.30).
+[Thu Nov  1 23:35:05 2012] [debug] Routing to a callback.
+[Thu Nov  1 23:35:06 2012] [debug] 200 OK (0.782560s, 1.278/s).
+[Thu Nov  1 23:40:05 2012] [debug] POST / (Velicio/12.10.30).
+[Thu Nov  1 23:40:05 2012] [debug] Routing to a callback.
+[Thu Nov  1 23:40:06 2012] [debug] 200 OK (0.819948s, 1.220/s).
+[Thu Nov  1 23:40:32 2012] [debug] GET / (curl/7.19.7 (x86_64-pc-linux-gnu) libcurl/7.19.7 OpenSSL/0.9.8k zlib/1.2.3.3 libidn/1.15).
+[Thu Nov  1 23:40:32 2012] [debug] Rendering template "get-velicio.text.ep" from DATA section.
+[Thu Nov  1 23:40:32 2012] [debug] 200 OK (0.004527s, 220.897/s).
+[Thu Nov  1 23:40:37 2012] [debug] GET / (curl/7.19.7 (x86_64-pc-linux-gnu) libcurl/7.19.7 OpenSSL/0.9.8k zlib/1.2.3.3 libidn/1.15).
+[Thu Nov  1 23:40:37 2012] [debug] Rendering cached template "get-velicio.text.ep" from DATA section.
+[Thu Nov  1 23:40:37 2012] [debug] 200 OK (0.001230s, 813.008/s).
+[Thu Nov  1 23:45:07 2012] [debug] POST / (Velicio/12.10.30).
+[Thu Nov  1 23:45:07 2012] [debug] Routing to a callback.
+[Thu Nov  1 23:45:08 2012] [debug] 200 OK (0.855960s, 1.168/s).
+[Thu Nov  1 23:50:08 2012] [debug] POST / (Velicio/12.10.30).
+[Thu Nov  1 23:50:08 2012] [debug] Routing to a callback.
+[Thu Nov  1 23:50:09 2012] [debug] 200 OK (0.777482s, 1.286/s).
+[Thu Nov  1 23:55:07 2012] [debug] POST / (Velicio/12.10.30).
+[Thu Nov  1 23:55:07 2012] [debug] Routing to a callback.
+[Thu Nov  1 23:55:08 2012] [debug] 200 OK (0.808706s, 1.237/s).
+[Thu Nov  1 23:59:01 2012] [info] Listening at "http://*:3003".
+[Thu Nov  1 23:59:04 2012] [debug] Your secret passphrase needs to be changed!!!
+[Thu Nov  1 23:59:04 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 23:59:04 2012] [debug] Routing to a callback.
+[Thu Nov  1 23:59:04 2012] [debug] Routing to a callback.
+[Thu Nov  1 23:59:04 2012] [debug] Rendering template "v.html.ep" from DATA section.
+[Thu Nov  1 23:59:04 2012] [debug] 200 OK (0.036060s, 27.732/s).
+[Thu Nov  1 23:59:05 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Thu Nov  1 23:59:05 2012] [debug] Routing to a callback.
+[Thu Nov  1 23:59:05 2012] [debug] Routing to a callback.
+[Thu Nov  1 23:59:05 2012] [debug] Careful, "format" is a reserved stash value.
+[Thu Nov  1 23:59:05 2012] [debug] 200 OK (0.069551s, 14.378/s).
+[Fri Nov  2 00:00:02 2012] [info] Listening at "http://*:3003".
+[Fri Nov  2 00:00:05 2012] [debug] Your secret passphrase needs to be changed!!!
+[Fri Nov  2 00:00:05 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Fri Nov  2 00:00:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:00:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:00:05 2012] [debug] Rendering template "v.html.ep" from DATA section.
+[Fri Nov  2 00:00:05 2012] [debug] 200 OK (0.057727s, 17.323/s).
+[Fri Nov  2 00:00:06 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Fri Nov  2 00:00:06 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:00:06 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:00:06 2012] [debug] Careful, "format" is a reserved stash value.
+[Fri Nov  2 00:00:06 2012] [debug] 200 OK (0.137114s, 7.293/s).
+[Fri Nov  2 00:00:07 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 00:00:07 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:00:08 2012] [debug] 200 OK (0.924713s, 1.081/s).
+[Fri Nov  2 00:00:42 2012] [info] Listening at "http://*:3003".
+[Fri Nov  2 00:00:46 2012] [debug] Your secret passphrase needs to be changed!!!
+[Fri Nov  2 00:00:46 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Fri Nov  2 00:00:46 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:00:46 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:00:46 2012] [debug] Rendering template "v.html.ep" from DATA section.
+[Fri Nov  2 00:00:46 2012] [debug] 200 OK (0.032915s, 30.381/s).
+[Fri Nov  2 00:00:47 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Fri Nov  2 00:00:47 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:00:47 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:00:47 2012] [debug] Careful, "format" is a reserved stash value.
+[Fri Nov  2 00:00:47 2012] [debug] 200 OK (0.067458s, 14.824/s).
+[Fri Nov  2 00:01:42 2012] [info] Listening at "http://*:3003".
+[Fri Nov  2 00:01:45 2012] [debug] Your secret passphrase needs to be changed!!!
+[Fri Nov  2 00:01:45 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Fri Nov  2 00:01:45 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:01:45 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:01:45 2012] [debug] Rendering template "v.html.ep" from DATA section.
+[Fri Nov  2 00:01:45 2012] [debug] 200 OK (0.034196s, 29.243/s).
+[Fri Nov  2 00:01:46 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Fri Nov  2 00:01:46 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:01:46 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:01:46 2012] [debug] Careful, "format" is a reserved stash value.
+[Fri Nov  2 00:01:46 2012] [debug] 200 OK (0.070910s, 14.102/s).
+[Fri Nov  2 00:05:08 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 00:05:08 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:05:09 2012] [debug] 200 OK (1.022762s, 0.978/s).
+[Fri Nov  2 00:10:06 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 00:10:06 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:10:07 2012] [debug] 200 OK (1.027454s, 0.973/s).
+[Fri Nov  2 00:12:10 2012] [info] Listening at "http://*:3003".
+[Fri Nov  2 00:12:13 2012] [debug] Your secret passphrase needs to be changed!!!
+[Fri Nov  2 00:12:13 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Fri Nov  2 00:12:13 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:12:13 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:12:13 2012] [debug] Rendering template "v.html.ep" from DATA section.
+[Fri Nov  2 00:12:13 2012] [debug] 200 OK (0.037977s, 26.332/s).
+[Fri Nov  2 00:12:14 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Fri Nov  2 00:12:14 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:12:14 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:12:14 2012] [debug] Careful, "format" is a reserved stash value.
+[Fri Nov  2 00:12:14 2012] [debug] 200 OK (0.070367s, 14.211/s).
+[Fri Nov  2 00:15:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 00:15:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:15:06 2012] [debug] 200 OK (0.876249s, 1.141/s).
+[Fri Nov  2 00:15:17 2012] [info] Listening at "http://*:3003".
+[Fri Nov  2 00:15:21 2012] [debug] Your secret passphrase needs to be changed!!!
+[Fri Nov  2 00:15:21 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Fri Nov  2 00:15:21 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:15:21 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:15:21 2012] [debug] Rendering template "v.html.ep" from DATA section.
+[Fri Nov  2 00:15:21 2012] [debug] 200 OK (0.034636s, 28.872/s).
+[Fri Nov  2 00:15:22 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Fri Nov  2 00:15:22 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:15:22 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:15:22 2012] [debug] Careful, "format" is a reserved stash value.
+[Fri Nov  2 00:15:22 2012] [debug] 200 OK (0.066902s, 14.947/s).
+[Fri Nov  2 00:16:11 2012] [info] Listening at "http://*:3003".
+[Fri Nov  2 00:16:12 2012] [debug] Your secret passphrase needs to be changed!!!
+[Fri Nov  2 00:16:13 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Fri Nov  2 00:16:13 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:16:13 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:16:13 2012] [debug] Rendering template "v.html.ep" from DATA section.
+[Fri Nov  2 00:16:13 2012] [debug] 200 OK (0.034591s, 28.909/s).
+[Fri Nov  2 00:16:13 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Fri Nov  2 00:16:13 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:16:13 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:16:13 2012] [debug] Careful, "format" is a reserved stash value.
+[Fri Nov  2 00:16:13 2012] [debug] 200 OK (0.065991s, 15.154/s).
+[Fri Nov  2 00:17:19 2012] [info] Listening at "http://*:3003".
+[Fri Nov  2 00:17:25 2012] [debug] Your secret passphrase needs to be changed!!!
+[Fri Nov  2 00:17:25 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Fri Nov  2 00:17:25 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:17:25 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:17:25 2012] [debug] Rendering template "v.html.ep" from DATA section.
+[Fri Nov  2 00:17:25 2012] [debug] 200 OK (0.033612s, 29.751/s).
+[Fri Nov  2 00:17:26 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Fri Nov  2 00:17:26 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:17:26 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:17:26 2012] [debug] Careful, "format" is a reserved stash value.
+[Fri Nov  2 00:17:26 2012] [debug] 200 OK (0.069419s, 14.405/s).
+[Fri Nov  2 00:18:41 2012] [info] Listening at "http://*:3003".
+[Fri Nov  2 00:18:43 2012] [debug] Your secret passphrase needs to be changed!!!
+[Fri Nov  2 00:18:43 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Fri Nov  2 00:18:43 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:18:43 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:18:43 2012] [debug] Rendering template "v.html.ep" from DATA section.
+[Fri Nov  2 00:18:43 2012] [debug] 200 OK (0.035710s, 28.003/s).
+[Fri Nov  2 00:18:44 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Fri Nov  2 00:18:44 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:18:44 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:18:44 2012] [debug] Careful, "format" is a reserved stash value.
+[Fri Nov  2 00:18:44 2012] [debug] 200 OK (0.069834s, 14.320/s).
+[Fri Nov  2 00:20:04 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 00:20:04 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:20:05 2012] [debug] 200 OK (0.924969s, 1.081/s).
+[Fri Nov  2 00:25:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 00:25:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:25:06 2012] [debug] 200 OK (0.778263s, 1.285/s).
+[Fri Nov  2 00:29:38 2012] [info] Listening at "http://*:3003".
+[Fri Nov  2 00:29:41 2012] [debug] Your secret passphrase needs to be changed!!!
+[Fri Nov  2 00:29:41 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Fri Nov  2 00:29:41 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:29:41 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:29:41 2012] [debug] Rendering template "v.html.ep" from DATA section.
+[Fri Nov  2 00:29:41 2012] [debug] 200 OK (0.036567s, 27.347/s).
+[Fri Nov  2 00:30:04 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 00:30:04 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:30:05 2012] [debug] 200 OK (0.917729s, 1.090/s).
+[Fri Nov  2 00:30:08 2012] [info] Listening at "http://*:3003".
+[Fri Nov  2 00:30:12 2012] [debug] Your secret passphrase needs to be changed!!!
+[Fri Nov  2 00:30:13 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Fri Nov  2 00:30:13 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:30:13 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:30:13 2012] [debug] Rendering template "v.html.ep" from DATA section.
+[Fri Nov  2 00:30:13 2012] [debug] 200 OK (0.033456s, 29.890/s).
+[Fri Nov  2 00:30:13 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Fri Nov  2 00:30:13 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:30:13 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:30:13 2012] [debug] Careful, "format" is a reserved stash value.
+[Fri Nov  2 00:30:13 2012] [debug] 200 OK (0.069115s, 14.469/s).
+[Fri Nov  2 00:35:04 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 00:35:04 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:35:05 2012] [debug] 200 OK (0.918936s, 1.088/s).
+[Fri Nov  2 00:40:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 00:40:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:40:06 2012] [debug] 200 OK (0.772509s, 1.294/s).
+[Fri Nov  2 00:44:30 2012] [info] Listening at "http://*:3003".
+[Fri Nov  2 00:44:38 2012] [debug] Your secret passphrase needs to be changed!!!
+[Fri Nov  2 00:44:38 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Fri Nov  2 00:44:38 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:44:38 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:44:38 2012] [debug] Rendering template "v.html.ep" from DATA section.
+[Fri Nov  2 00:44:38 2012] [debug] 200 OK (0.034218s, 29.224/s).
+[Fri Nov  2 00:44:39 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Fri Nov  2 00:44:39 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:44:39 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:44:39 2012] [debug] Careful, "format" is a reserved stash value.
+[Fri Nov  2 00:44:39 2012] [debug] 200 OK (0.068319s, 14.637/s).
+[Fri Nov  2 00:44:59 2012] [debug] GET / (curl/7.19.7 (x86_64-pc-linux-gnu) libcurl/7.19.7 OpenSSL/0.9.8k zlib/1.2.3.3 libidn/1.15).
+[Fri Nov  2 00:44:59 2012] [debug] Rendering template "get-velicio.text.ep" from DATA section.
+[Fri Nov  2 00:44:59 2012] [debug] 200 OK (0.003918s, 255.232/s).
+[Fri Nov  2 00:45:04 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 00:45:04 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:45:05 2012] [debug] 200 OK (0.881884s, 1.134/s).
+[Fri Nov  2 00:48:54 2012] [debug] GET / (curl/7.19.7 (x86_64-pc-linux-gnu) libcurl/7.19.7 OpenSSL/0.9.8k zlib/1.2.3.3 libidn/1.15).
+[Fri Nov  2 00:48:54 2012] [debug] Rendering cached template "get-velicio.text.ep" from DATA section.
+[Fri Nov  2 00:48:54 2012] [debug] 200 OK (0.003162s, 316.256/s).
+[Fri Nov  2 00:49:05 2012] [debug] GET /conf/local (Velicio/12.10.30).
+[Fri Nov  2 00:49:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:49:05 2012] [debug] Rendering template "conf.text.ep" from DATA section.
+[Fri Nov  2 00:49:05 2012] [debug] 200 OK (0.014779s, 67.664/s).
+[Fri Nov  2 00:49:05 2012] [debug] GET /conf (Velicio/12.10.30).
+[Fri Nov  2 00:49:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:49:05 2012] [debug] Rendering template "conf.text.ep" from DATA section.
+[Fri Nov  2 00:49:05 2012] [debug] 200 OK (0.013082s, 76.441/s).
+[Fri Nov  2 00:49:16 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 00:49:16 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:49:17 2012] [debug] 200 OK (0.943932s, 1.059/s).
+[Fri Nov  2 00:49:20 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Fri Nov  2 00:49:20 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:49:20 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:49:20 2012] [debug] Rendering cached template "v.html.ep" from DATA section.
+[Fri Nov  2 00:49:20 2012] [debug] 200 OK (0.034010s, 29.403/s).
+[Fri Nov  2 00:49:20 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Fri Nov  2 00:49:20 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:49:20 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:49:20 2012] [debug] Careful, "format" is a reserved stash value.
+[Fri Nov  2 00:49:20 2012] [debug] 200 OK (0.098208s, 10.182/s).
+[Fri Nov  2 00:50:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 00:50:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:50:05 2012] [debug] 200 OK (0.727783s, 1.374/s).
+[Fri Nov  2 00:55:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 00:55:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 00:55:06 2012] [debug] 200 OK (0.769643s, 1.299/s).
+[Fri Nov  2 01:00:04 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 01:00:04 2012] [debug] Routing to a callback.
+[Fri Nov  2 01:00:05 2012] [debug] 200 OK (0.782150s, 1.279/s).
+[Fri Nov  2 01:05:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 01:05:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 01:05:06 2012] [debug] 200 OK (0.775294s, 1.290/s).
+[Fri Nov  2 01:10:04 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 01:10:04 2012] [debug] Routing to a callback.
+[Fri Nov  2 01:10:05 2012] [debug] 200 OK (0.757746s, 1.320/s).
+[Fri Nov  2 01:15:04 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 01:15:04 2012] [debug] Routing to a callback.
+[Fri Nov  2 01:15:05 2012] [debug] 200 OK (0.791862s, 1.263/s).
+[Fri Nov  2 01:20:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 01:20:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 01:20:05 2012] [debug] 200 OK (0.752023s, 1.330/s).
+[Fri Nov  2 01:25:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 01:25:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 01:25:06 2012] [debug] 200 OK (0.781216s, 1.280/s).
+[Fri Nov  2 01:30:04 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 01:30:04 2012] [debug] Routing to a callback.
+[Fri Nov  2 01:30:05 2012] [debug] 200 OK (0.765422s, 1.306/s).
+[Fri Nov  2 01:35:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 01:35:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 01:35:05 2012] [debug] 200 OK (0.774707s, 1.291/s).
+[Fri Nov  2 01:35:19 2012] [debug] GET / (Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:11.0) Gecko/20100101 Firefox/11.0).
+[Fri Nov  2 01:35:19 2012] [debug] Rendering template "index.html.ep" from DATA section.
+[Fri Nov  2 01:35:19 2012] [debug] 200 OK (0.005106s, 195.848/s).
+[Fri Nov  2 01:40:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 01:40:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 01:40:06 2012] [debug] 200 OK (0.772029s, 1.295/s).
+[Fri Nov  2 01:45:04 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 01:45:04 2012] [debug] Routing to a callback.
+[Fri Nov  2 01:45:05 2012] [debug] 200 OK (0.751455s, 1.331/s).
+[Fri Nov  2 01:50:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 01:50:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 01:50:06 2012] [debug] 200 OK (0.816419s, 1.225/s).
+[Fri Nov  2 01:55:04 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 01:55:04 2012] [debug] Routing to a callback.
+[Fri Nov  2 01:55:05 2012] [debug] 200 OK (0.808065s, 1.238/s).
+[Fri Nov  2 02:00:04 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 02:00:04 2012] [debug] Routing to a callback.
+[Fri Nov  2 02:00:05 2012] [debug] 200 OK (0.768249s, 1.302/s).
+[Fri Nov  2 02:05:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 02:05:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 02:05:05 2012] [debug] 200 OK (0.796044s, 1.256/s).
+[Fri Nov  2 02:10:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 02:10:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 02:10:06 2012] [debug] 200 OK (0.867983s, 1.152/s).
+[Fri Nov  2 02:15:04 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 02:15:04 2012] [debug] Routing to a callback.
+[Fri Nov  2 02:15:05 2012] [debug] 200 OK (0.777665s, 1.286/s).
+[Fri Nov  2 02:20:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 02:20:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 02:20:05 2012] [debug] 200 OK (0.788891s, 1.268/s).
+[Fri Nov  2 02:25:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 02:25:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 02:25:06 2012] [debug] 200 OK (0.864919s, 1.156/s).
+[Fri Nov  2 02:30:04 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 02:30:04 2012] [debug] Routing to a callback.
+[Fri Nov  2 02:30:05 2012] [debug] 200 OK (0.760612s, 1.315/s).
+[Fri Nov  2 02:35:04 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 02:35:04 2012] [debug] Routing to a callback.
+[Fri Nov  2 02:35:05 2012] [debug] 200 OK (0.780846s, 1.281/s).
+[Fri Nov  2 02:40:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 02:40:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 02:40:06 2012] [debug] 200 OK (0.771012s, 1.297/s).
+[Fri Nov  2 02:45:04 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 02:45:04 2012] [debug] Routing to a callback.
+[Fri Nov  2 02:45:05 2012] [debug] 200 OK (0.781029s, 1.280/s).
+[Fri Nov  2 02:50:04 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 02:50:04 2012] [debug] Routing to a callback.
+[Fri Nov  2 02:50:05 2012] [debug] 200 OK (0.775587s, 1.289/s).
+[Fri Nov  2 02:55:04 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 02:55:04 2012] [debug] Routing to a callback.
+[Fri Nov  2 02:55:05 2012] [debug] 200 OK (0.763710s, 1.309/s).
+[Fri Nov  2 03:00:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 03:00:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 03:00:06 2012] [debug] 200 OK (0.885444s, 1.129/s).
+[Fri Nov  2 03:05:04 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 03:05:04 2012] [debug] Routing to a callback.
+[Fri Nov  2 03:05:05 2012] [debug] 200 OK (0.849333s, 1.177/s).
+[Fri Nov  2 03:10:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 03:10:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 03:10:05 2012] [debug] 200 OK (0.777705s, 1.286/s).
+[Fri Nov  2 03:15:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 03:15:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 03:15:06 2012] [debug] 200 OK (1.091259s, 0.916/s).
+[Fri Nov  2 03:20:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 03:20:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 03:20:05 2012] [debug] 200 OK (0.797505s, 1.254/s).
+[Fri Nov  2 03:25:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 03:25:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 03:25:06 2012] [debug] 200 OK (0.751688s, 1.330/s).
+[Fri Nov  2 03:30:04 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 03:30:04 2012] [debug] Routing to a callback.
+[Fri Nov  2 03:30:05 2012] [debug] 200 OK (0.782215s, 1.278/s).
+[Fri Nov  2 03:35:04 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 03:35:04 2012] [debug] Routing to a callback.
+[Fri Nov  2 03:35:05 2012] [debug] 200 OK (0.771231s, 1.297/s).
+[Fri Nov  2 03:40:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 03:40:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 03:40:05 2012] [debug] 200 OK (0.817735s, 1.223/s).
+[Fri Nov  2 03:45:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 03:45:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 03:45:05 2012] [debug] 200 OK (0.774140s, 1.292/s).
+[Fri Nov  2 03:50:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 03:50:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 03:50:06 2012] [debug] 200 OK (0.776891s, 1.287/s).
+[Fri Nov  2 03:55:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 03:55:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 03:55:05 2012] [debug] 200 OK (0.798446s, 1.252/s).
+[Fri Nov  2 04:00:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 04:00:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 04:00:06 2012] [debug] 200 OK (0.897282s, 1.114/s).
+[Fri Nov  2 04:05:04 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 04:05:04 2012] [debug] Routing to a callback.
+[Fri Nov  2 04:05:05 2012] [debug] 200 OK (0.758987s, 1.318/s).
+[Fri Nov  2 04:10:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 04:10:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 04:10:05 2012] [debug] 200 OK (0.780486s, 1.281/s).
+[Fri Nov  2 04:15:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 04:15:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 04:15:05 2012] [debug] 200 OK (0.753504s, 1.327/s).
+[Fri Nov  2 04:20:04 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 04:20:04 2012] [debug] Routing to a callback.
+[Fri Nov  2 04:20:05 2012] [debug] 200 OK (0.787006s, 1.271/s).
+[Fri Nov  2 04:25:04 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 04:25:04 2012] [debug] Routing to a callback.
+[Fri Nov  2 04:25:05 2012] [debug] 200 OK (0.780774s, 1.281/s).
+[Fri Nov  2 04:30:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 04:30:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 04:30:05 2012] [debug] 200 OK (0.795431s, 1.257/s).
+[Fri Nov  2 04:35:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 04:35:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 04:35:06 2012] [debug] 200 OK (1.064696s, 0.939/s).
+[Fri Nov  2 04:40:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 04:40:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 04:40:05 2012] [debug] 200 OK (0.803819s, 1.244/s).
+[Fri Nov  2 04:45:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 04:45:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 04:45:06 2012] [debug] 200 OK (0.806602s, 1.240/s).
+[Fri Nov  2 04:50:04 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 04:50:04 2012] [debug] Routing to a callback.
+[Fri Nov  2 04:50:05 2012] [debug] 200 OK (0.783670s, 1.276/s).
+[Fri Nov  2 04:55:04 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 04:55:04 2012] [debug] Routing to a callback.
+[Fri Nov  2 04:55:05 2012] [debug] 200 OK (0.764747s, 1.308/s).
+[Fri Nov  2 05:00:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 05:00:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 05:00:05 2012] [debug] 200 OK (0.770390s, 1.298/s).
+[Fri Nov  2 05:05:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 05:05:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 05:05:06 2012] [debug] 200 OK (0.772592s, 1.294/s).
+[Fri Nov  2 05:10:04 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 05:10:04 2012] [debug] Routing to a callback.
+[Fri Nov  2 05:10:05 2012] [debug] 200 OK (0.788707s, 1.268/s).
+[Fri Nov  2 05:15:04 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 05:15:04 2012] [debug] Routing to a callback.
+[Fri Nov  2 05:15:05 2012] [debug] 200 OK (0.776215s, 1.288/s).
+[Fri Nov  2 05:20:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 05:20:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 05:20:06 2012] [debug] 200 OK (0.798174s, 1.253/s).
+[Fri Nov  2 05:25:04 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 05:25:04 2012] [debug] Routing to a callback.
+[Fri Nov  2 05:25:05 2012] [debug] 200 OK (0.783592s, 1.276/s).
+[Fri Nov  2 05:30:04 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 05:30:04 2012] [debug] Routing to a callback.
+[Fri Nov  2 05:30:05 2012] [debug] 200 OK (1.029969s, 0.971/s).
+[Fri Nov  2 05:35:04 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 05:35:04 2012] [debug] Routing to a callback.
+[Fri Nov  2 05:35:05 2012] [debug] 200 OK (0.814302s, 1.228/s).
+[Fri Nov  2 05:40:04 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 05:40:04 2012] [debug] Routing to a callback.
+[Fri Nov  2 05:40:05 2012] [debug] 200 OK (0.835735s, 1.197/s).
+[Fri Nov  2 05:45:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 05:45:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 05:45:06 2012] [debug] 200 OK (0.763871s, 1.309/s).
+[Fri Nov  2 05:50:04 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 05:50:04 2012] [debug] Routing to a callback.
+[Fri Nov  2 05:50:05 2012] [debug] 200 OK (0.770814s, 1.297/s).
+[Fri Nov  2 05:55:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 05:55:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 05:55:05 2012] [debug] 200 OK (0.825284s, 1.212/s).
+[Fri Nov  2 06:00:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 06:00:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 06:00:06 2012] [debug] 200 OK (0.797684s, 1.254/s).
+[Fri Nov  2 06:05:04 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 06:05:04 2012] [debug] Routing to a callback.
+[Fri Nov  2 06:05:05 2012] [debug] 200 OK (0.829652s, 1.205/s).
+[Fri Nov  2 06:10:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 06:10:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 06:10:05 2012] [debug] 200 OK (0.809058s, 1.236/s).
+[Fri Nov  2 06:15:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 06:15:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 06:15:06 2012] [debug] 200 OK (1.098274s, 0.911/s).
+[Fri Nov  2 06:20:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 06:20:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 06:20:06 2012] [debug] 200 OK (0.902404s, 1.108/s).
+[Fri Nov  2 06:25:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 06:25:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 06:25:06 2012] [debug] 200 OK (0.886563s, 1.128/s).
+[Fri Nov  2 06:30:06 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 06:30:06 2012] [debug] Routing to a callback.
+[Fri Nov  2 06:30:07 2012] [debug] 200 OK (0.841247s, 1.189/s).
+[Fri Nov  2 06:35:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 06:35:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 06:35:06 2012] [debug] 200 OK (0.844054s, 1.185/s).
+[Fri Nov  2 06:40:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 06:40:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 06:40:05 2012] [debug] 200 OK (0.784206s, 1.275/s).
+[Fri Nov  2 06:45:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 06:45:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 06:45:06 2012] [debug] 200 OK (1.105939s, 0.904/s).
+[Fri Nov  2 06:50:04 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 06:50:04 2012] [debug] Routing to a callback.
+[Fri Nov  2 06:50:05 2012] [debug] 200 OK (0.780902s, 1.281/s).
+[Fri Nov  2 06:55:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 06:55:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 06:55:06 2012] [debug] 200 OK (1.002840s, 0.997/s).
+[Fri Nov  2 07:00:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 07:00:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 07:00:06 2012] [debug] 200 OK (1.116691s, 0.896/s).
+[Fri Nov  2 07:05:04 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 07:05:04 2012] [debug] Routing to a callback.
+[Fri Nov  2 07:05:05 2012] [debug] 200 OK (0.785591s, 1.273/s).
+[Fri Nov  2 07:10:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 07:10:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 07:10:06 2012] [debug] 200 OK (1.042464s, 0.959/s).
+[Fri Nov  2 07:15:04 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 07:15:04 2012] [debug] Routing to a callback.
+[Fri Nov  2 07:15:05 2012] [debug] 200 OK (0.773107s, 1.293/s).
+[Fri Nov  2 07:20:04 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 07:20:04 2012] [debug] Routing to a callback.
+[Fri Nov  2 07:20:05 2012] [debug] 200 OK (0.767347s, 1.303/s).
+[Fri Nov  2 07:25:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 07:25:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 07:25:05 2012] [debug] 200 OK (0.779664s, 1.283/s).
+[Fri Nov  2 07:30:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 07:30:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 07:30:06 2012] [debug] 200 OK (0.958520s, 1.043/s).
+[Fri Nov  2 07:35:04 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 07:35:04 2012] [debug] Routing to a callback.
+[Fri Nov  2 07:35:05 2012] [debug] 200 OK (0.778652s, 1.284/s).
+[Fri Nov  2 07:40:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 07:40:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 07:40:05 2012] [debug] 200 OK (0.805699s, 1.241/s).
+[Fri Nov  2 07:45:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 07:45:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 07:45:06 2012] [debug] 200 OK (0.945246s, 1.058/s).
+[Fri Nov  2 07:50:04 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 07:50:04 2012] [debug] Routing to a callback.
+[Fri Nov  2 07:50:05 2012] [debug] 200 OK (0.764034s, 1.309/s).
+[Fri Nov  2 07:55:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 07:55:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 07:55:06 2012] [debug] 200 OK (1.096165s, 0.912/s).
+[Fri Nov  2 08:00:04 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 08:00:04 2012] [debug] Routing to a callback.
+[Fri Nov  2 08:00:05 2012] [debug] 200 OK (0.859705s, 1.163/s).
+[Fri Nov  2 08:05:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 08:05:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 08:05:05 2012] [debug] 200 OK (0.833144s, 1.200/s).
+[Fri Nov  2 08:10:04 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 08:10:04 2012] [debug] Routing to a callback.
+[Fri Nov  2 08:10:05 2012] [debug] 200 OK (0.774022s, 1.292/s).
+[Fri Nov  2 08:15:04 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 08:15:04 2012] [debug] Routing to a callback.
+[Fri Nov  2 08:15:05 2012] [debug] 200 OK (0.798777s, 1.252/s).
+[Fri Nov  2 08:20:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 08:20:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 08:20:06 2012] [debug] 200 OK (0.991180s, 1.009/s).
+[Fri Nov  2 08:25:04 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 08:25:04 2012] [debug] Routing to a callback.
+[Fri Nov  2 08:25:05 2012] [debug] 200 OK (0.887726s, 1.126/s).
+[Fri Nov  2 08:30:05 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 08:30:05 2012] [debug] Routing to a callback.
+[Fri Nov  2 08:30:06 2012] [debug] 200 OK (1.071108s, 0.934/s).
+[Fri Nov  2 08:35:04 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 08:35:04 2012] [debug] Routing to a callback.
+[Fri Nov  2 08:35:05 2012] [debug] 200 OK (0.793735s, 1.260/s).
+[Fri Nov  2 08:40:04 2012] [debug] POST / (Velicio/12.10.30).
+[Fri Nov  2 08:40:04 2012] [debug] Routing to a callback.
+[Fri Nov  2 08:40:05 2012] [debug] 200 OK (0.988142s, 1.012/s).
+[Fri Nov  2 08:42:22 2012] [debug] GET /v/ (Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0).
+[Fri Nov  2 08:42:22 2012] [debug] Routing to a callback.
+[Fri Nov  2 08:42:22 2012] [debug] Template "not_found.development.html.ep" not found.
+[Fri Nov  2 08:42:22 2012] [debug] Template "not_found.html.ep" not found.
+[Fri Nov  2 08:42:22 2012] [debug] Rendering inline template.
+[Fri Nov  2 08:42:22 2012] [debug] Rendering inline template.
+[Fri Nov  2 08:42:22 2012] [debug] 404 Not Found (0.024010s, 41.649/s).

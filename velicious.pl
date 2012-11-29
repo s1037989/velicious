@@ -1,44 +1,133 @@
 # $ ps axf | perl -MJSON::Any -MMIME::Base64 -e '$/=undef; print JSON::Any->to_json({map{@_=split/=/,$_,2;$_[0]=>$_[1]}@ARGV}), "\n", encode_base64(<STDIN>), "\n"' pg="System Information" pn="ps axf" s="INFO" >> /tmp/a.txt
 # $ env VELITE_COOKIE=${VELITE_COOKIE:-$(mktemp)} curl -b $VELITE_COOKIE -c $VELITE_COOKIE -X POST --data-binary @/tmp/a.txt http://localhost:3003
 
+use constant VERSION => '12.10.30';
+
 use Mojolicious::Lite;  
+use Mojolicious::Sessions;
 use Mojo::JSON;
+
+my $sessions = Mojolicious::Sessions->new;
+$sessions->cookie_name('velicious');
+$sessions->default_expiration(60*60*24*365);
 
 use MIME::Base64;
 use UUID::Tiny;
+use Digest::MD5 qw/md5_hex/;
 use Data::Dumper;
 
 use FindBin qw($Bin);
 use lib "$Bin/lib";
+use subs qw/analyze/;
 use Schema;
 
-app->config(hypnotoad => {pid_file=>$Bin.'/../.velicious', listen=>['http://*:3003'], proxy=>1});
+# $ENV{DBIC_TRACE}=1;  # If mode == Dev
+app->config(hypnotoad => {pid_file=>$Bin.'/../.velicious', listen=>['http://*:3003'], proxy=>1}, minver => '12.10.30', version => '12.10.30');
 helper db => sub { Schema->connect({dsn=>'DBI:mysql:database=velite;host=localhost',user=>'velite',password=>'velite'}) };
+helper upgrade => sub {
+	my $self = shift;
+	my $name = shift;
+	return $self->{__UPGRADE} if $self->{__UPGRADE};
+	my ($current) = ($self->req->headers->user_agent =~ /^$name\/(\S+)/);
+	my $_current = $current;
+	my $_min = $self->app->config->{minver};
+	my $_latest = $self->app->config->{version};
+	$_current =~ s/\D//g;
+	$_min =~ s/\D//g;
+	$_latest =~ s/\D//g;
+	$self->{__UPGRADE} = {
+		min => $self->app->config->{minver},
+		latest => $self->app->config->{version},
+		current => $current,
+		can_upgrade => $_current < $_latest ? 1 : 0,
+		must_upgrade => $_current < $_min ? 1 : 0,
+		url => 'http://use.velicio.us',
+	};
+	#warn Dumper($self->{__UPGRADE});
+	return $self->{__UPGRADE};
+};
 plugin 'HeaderCondition';
+plugin 'IsXHR';
+plugin 'authentication' => {
+	'autoload_user' => 1,
+	'session_key' => 'fifdhiwfiwhgfyug38g3iuhe8923oij20',
+	'load_user' => sub {
+		my ($self, $email) = @_;
+		return $self->db->resultset('User')->find({email=>$email});
+	},
+	'validate_user' => sub {
+		my ($self, $email, $password, $extradata) = @_;
+		return undef unless defined $email;
+		return $email if $self->db->resultset('User')->single({email=>$email, password=>md5_hex($password)});
+		return undef;
+	},
+	#'current_user_fn' => 'user', # compatibility with old code
+};
+plugin 'authorization', {
+	has_priv => sub {
+		my ($self, $priv, $extradata) = @_;
+		return 0 unless $self->current_user && $self->current_user->role;
+		return 1 if $priv eq $self->current_user->role;
+		return 0;
+	},
+	is_role => sub {
+		my ($self, $role, $extradata) = @_;
+		return 0 unless $self->current_user && $self->current_user->role;
+		return 1 if $role eq $self->current_user->role;
+		return 0;
+	},
+	user_privs => sub {
+		my ($self, $extradata) = @_;
+		return [] unless $self->current_user && $self->current_user->role;
+		return $self->current_user->role;
+	},
+	user_role => sub {
+		my ($self, $extradata) = @_;
+		return '' unless $self->current_user && $self->current_user->role;
+		return $self->current_user->role;
+	},
+};
 
 # TODO: HeaderCondition host -> X-Forwarded-Host||Host
 #get '/' => (host => qr/^use\.velicio\.us$/) => 'get-velicio';
 #get '/' => (host => qr/^get\.velicio\.us$/) => 'get-velicious';
 get '/' => [format => 0] => (headers => {'X-Forwarded-Host' => qr/^use\.velicio\.us$/}) => {format=>'text', template=>'get-velicio'};
 get '/' => [format => 0] => (headers => {'X-Forwarded-Host' => qr/^get\.velicio\.us$/}) => {format=>'text', template=>'get-velicious'};
+get '/' => 'index';
 
-post '/' => (agent => qr/^Velicio|^Ce/) => sub {
-        my $self = shift;
-	$self->session->{uuid} ||= create_UUID_as_string(UUID_V4);
-	my @dt = localtime; $dt[4]++; $dt[5]+=1900;
-	local $/ = undef;
-	if ( $self->req->headers->user_agent =~ / (\{.*?\})$/ ) {
-		my $system = Mojo::JSON->decode($1);
-		$self->db->resultset('System')->update_or_create({uuid=>$self->session->{uuid}, sn=>$system->{sn}});
+any '/login' => sub {
+	my $self = shift;
+	if ( $self->param('email') && $self->param('password') ) {
+		return $self->redirect_to($self->session->{'requested_page'}||'/') if $self->authenticate($self->param('email'), $self->param('password'));
+		$self->stash(denied => 1);
 	}
-	foreach ( split /\n\n/, $self->req->body ) {
-		local @_ = split /\n/, $_, 2;
-		local $_ = Mojo::JSON->decode($_[0]);
-		$_->{'s'} ||= 'INFO';
-		$self->db->resultset('Velicious')->create({dt=>sprintf("%04d-%02d-%02d %02d:%02d:%02d", reverse @dt[0..5]), uuid=>$self->session->{uuid}, %{$_}, l=>decode_base64($_[1])});
+} => 'login';
+get '/logout' => sub {$_[0]->stash(is_user_authenticated => $_[0]->is_user_authenticated)} => 'logout';
+
+post '/' => (agent => qr/^Velicio/) => sub {
+	my $self = shift;
+	return $self->render_json({upgrade => $self->upgrade('Velicio')}) if $self->upgrade('Velicio')->{must_upgrade};
+	$self->session->{uuid} ||= create_UUID_as_string(UUID_V4);
+	local $/ = undef;
+	my @dt = localtime; $dt[4]++; $dt[5]+=1900;
+	my $dt = sprintf("%04d-%02d-%02d %02d:%02d:%02d", reverse @dt[0..5]);
+	# TODO: Set first run
+	my @data = split /\n\n/, $self->req->body;
+	my $record = Mojo::JSON->decode(shift @data);
+	my $time_offset = time - ($record->{dt}||time); # account for time zones
+	my $this = $self->db->resultset('System')->find_or_create({uuid=>$self->session->{uuid}, create_dt=>$dt});
+	my $prev = $self->db->resultset('System')->find({uuid=>$self->session->{uuid}, dt=>$this->dt});
+	my $sn_change = $prev->sn eq $record->{sn};
+	$this->update({dt=>$dt, sn=>$record->{sn}});
+	foreach ( @data ) {
+		my ($tests, $details, $vals) = analyze split /\n/, $_, 2 or next;
+		my $test = $self->db->resultset('Test')->find_or_create({uuid=>$self->session->{uuid}, %{$tests}});
+		$test->update({last_dt=>$dt, %{$details}});
+		$self->db->resultset('Val')->create({test_id=>$test->test_id, dt=>$dt, %{$vals}});
 	}
 	return $self->render_json({
 		at => [],
+		upgrade => $self->upgrade('Velicio')->{can_upgrade} ? $self->upgrade('Velicio') : undef,
 	});
 };
 
@@ -49,23 +138,234 @@ get '/conf/:conf' => {conf => 'remote'} => sub {
 	return $self->render('conf', format=>'text', conf=>defined $conf ? $conf->conf : '');
 };
 
+under '/v' => sub { shift->is_user_authenticated };
+get '/' => sub {
+	my $self = shift;
+	$self->stash(format => 'json') if $self->req->is_xhr;
+	$self->respond_to(
+		json => {json => {page=>1, pages=>1, records=>110, data=>[app->db->resultset('MyTests')->search(\['email=?', ['email', $self->current_user->email]])->all]}},
+		html => {template => 'v'},
+	);
+};
+get '/:uuid' => sub {
+	my $self = shift;
+	$self->render_json([app->db->resultset('MyTests')->search(\['email=? and uuid=?', ['email', $self->current_user->email], ['uuid', $self->param('uuid')]])->all]);
+};
+get '/:uuid/:pg' => sub {
+	my $self = shift;
+	$self->render_json([app->db->resultset('MyTests')->search(\['email=? and uuid=? and pg=?', ['email', $self->current_user->email], ['uuid', $self->param('uuid')], ['pg', $self->param('pg')]])->all]);
+};
+get '/:uuid/:pg/:pn' => sub {
+	my $self = shift;
+	$self->render_json([app->db->resultset('MyTests')->search(\['email=? and uuid=? and pg=? and pn=?', ['email', $self->current_user->email], ['uuid', $self->param('uuid')], ['pg', $self->param('pg')], ['pn', $self->param('pn')]])->all]);
+};
+
 app->start;
+
+sub lines {
+	my $l = shift;
+	return 0;
+}
+
+sub analyze {
+	my ($json, $body) = @_;
+	return undef unless $json;
+	$json = Mojo::JSON->decode($json);
+	return undef unless $json->{'pg'} && $json->{'pn'};
+	$json->{'l'} = decode_base64($body) if $body;
+	$json->{'l'} =~ s/\s*$// if $json->{'l'};
+	my $_l = lines($json->{'l'}) if $json->{'l'};
+	$json->{'y'} =~ s/_/$_l/g if $_l && $json->{'y'};
+	return {pg => $json->{'pg'}, pn => $json->{'pn'}}, {'y' => $json->{'y'}, l => $json->{'l'}}, {'s' => $json->{'s'}||'INFO', n => $json->{'n'}};
+}
 
 __DATA__
 
+@@ v.html.ep
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>My First Grid</title>
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js" type="text/javascript"></script>
+<script src="http://jtemplates.tpython.com/jTemplates/jquery-jtemplates.js" type="text/javascript"></script>
+
+<style>
+.INFO {background-color:white}
+.OK {background-color:green}
+.WARN {background-color:yellow}
+.ALERT {background-color:red}
+</style>
+<script type="text/javascript">
+$(document).ready(function(){
+   $("#data").setTemplateElement("tData").processTemplateURL("", null, {
+      on_success: function(){
+        $('#datatable tr td[name="status"]').each(function(){
+            var status = $(this).html();
+            $(this).parent().find(".color").addClass(status);
+        });
+        $('#datatable tr td[name="details"]').each(function(){
+            $(this).toggle(function(){
+                $(this).find('div').show();
+            }, function(){
+                $(this).find('div').hide();
+            });
+        });
+      }
+   });
+});
+</script>
+</head>
+<body>
+<!-- Templates -->
+    <p style="display:none"><textarea id="tData" rows="0" cols="0"><!--
+    <table id="datatable">
+      <tr>
+        <td class="header">Timestamp</td>
+        <td class="header">System Name</td>
+        <td class="header CellDecimal">Property Group</td>
+        <td class="header">Property Name</td>
+        <td class="header">Status</td>
+        <td class="header">Value</td>
+        <td class="header">Details</td>
+      </tr>
+      {#foreach $T.data as r}
+        <tr class="{#cycle values=['bcEED','bcDEE']}">
+          <td class="dtcolor">{$T.r$index == 0 || $T.r.dt != $T.data[$T.r$index-1].dt ? $T.r.dt : '&nbsp;'}</td>
+          <td class="sncolor">{$T.r$index == 0 || $T.r.sn != $T.data[$T.r$index-1].sn ? $T.r.sn : '&nbsp;'}</td>
+          <td class="pgcolor"}">{$T.r$index == 0 || $T.r.pg != $T.data[$T.r$index-1].pg ? $T.r.pg : '&nbsp;'}</td>
+          <td class="color">{$T.r.pn}</td>
+          <td class="color" name="status">{$T.r.s}</td>
+          <td class="color">{$T.r.n==null?'&nbsp;':$T.r.n}</td>
+          <td class="color" name="details">{$T.r.y == null || $T.r.y == "" ? $T.r.l.substr(0,$T.r.l.indexOf('\n')<3?80:$T.r.l.indexOf('\n')) : $T.r.y}{#if $T.r.l.indexOf('\n')>=3}<div style="display:none" name="fulltext"><pre>{$T.r.l}</pre></div>{#/if}</td>
+        </tr>
+      {#/for}
+    </table>
+  --></textarea></p>
+
+  <!-- Output elements -->
+  <div id="data" class="Content"></div>
+</body>
+</html>
+
+@@ oldv.html.ep
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>My First Grid</title>
+ 
+<link   href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" type="text/css" rel="stylesheet" media="all" />
+<link   href="/s/css/ui.jqgrid.css" rel="stylesheet" type="text/css" media="screen" />      
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js" type="text/javascript"></script>
+<script type="text/javascript" src="/s/js/i18n/grid.locale-en.js"></script>
+<script type="text/javascript" src="/s/js/jquery.jqGrid.min.js"></script>
+ 
+<script type="text/javascript">
+$(document).ready(function(){
+  $("#44remote3").jqGrid({
+          url:'',
+          datatype: "json",
+   jsonReader : {
+      root:"data",
+      page: "page",
+      total: "pages",
+      records: "records",
+      repeatitems: false,
+      id: "0"
+   },
+          colNames:['ID', 'System Name', 'Property Group','Property Name','Timestamp','Status', 'Value', 'Details'],
+          colModel:[
+                  {name:'test_id',index:'test_id', width:90},
+                  {name:'sn',index:'sn', width:90},
+                  {name:'pg',index:'pg', width:100},
+                  {name:'pn',index:'pn', width:250},
+                  {name:'dt',index:'dt', width:160},
+                  {name:'s',index:'s', width:50},
+                  {name:'n',index:'n', width:50, sortable:false,editable:false},
+                  {name:'y',index:'y', width:450, sortable:false,editable:false}
+          ],
+          rowNum:200,
+          rowList:[10,20,30],
+          height: 'auto',
+          pager: '#p44remote3',
+          sortname: 'sn', 
+      viewrecords: true,
+      sortorder: "desc",
+      caption:"Grouping with remote data",
+      grouping: true,
+          groupingView : {
+                  groupField : ['sn', 'pg'],
+                  groupColumnShow : [false, false],
+                  groupText : ['<b>{0}</b> Sum of totaly: {total}', '{0} Sum'],
+                  groupCollapse : true,
+                  groupOrder: ['asc', 'asc'],
+                  groupSummary : [false, false]
+          }
+  }); 
+  $("#44remote3").jqGrid('navGrid','#p44remote3',{add:false,edit:false,del:false});
+});
+
+</script>
+</head>
+<body>
+<%= scalar localtime %>
+<table id="44remote3"></table>
+<div id="p44remote3"></div>   
+</body>
+</html>
+
+@@ index.html.ep
+% if ( $self->current_user ) {
+    Welcome, <%= $self->current_user->email %><br />
+% }
+<a href="<%= url_for 'login' %>">Login</a>
+
+@@ login.html.ep
+% if ( stash 'denied' ) {
+    Access Denied<br />
+% }
+%= form_for '/login' => (method=>'POST') => begin
+E-mail: <%= text_field 'email' %><br />
+Password: <%= password_field 'password' %><br />
+%= submit_button 'login', name=>'Login'
+% end
+
+@@ logout.html.ep
+% if ( stash 'is_user_authenticated' ) {
+    % $self->logout; 
+    Logged out.<br />
+% } else {
+    Not logged in.<br />
+% }
+%= link_to Login => 'login'
+
+@@ denied.html.ep
+DENIED
+
 @@ get-velicio.text.ep
 #!/bin/sh
-echo use
+sudo rm -rf /etc/cemosshe* /usr/local/lib/cemosshe* /etc/cron.d/cemosshe /etc/cron.daily/*-cemosshe /tmp/cemosshe* /var/lib/cemosshe* /var/run/cemosshe*
+sudo apt-get -y install libjson-perl libjson-any-perl libschedule-at-perl libfile-touch-perl
+# How to remove old files that are no longer used by Velicio?
+curl -f -s http://velicio.us/s/velicio.tar.gz | tar xz -C /tmp
+dir=$(pwd)
+cd /tmp/velicio-*
+make test && sudo make install
+cd $dir
 
 @@ get-velicious.text.ep
 #!/bin/sh
-echo get
+#curl -f -s http://velicio.us/d/velicious.tar.gz | sudo tar xz -C /tmp
+echo get velicio.us
 
 @@ conf.text.ep
-% if ( $conf ) {
-<%= $conf %>
-% } elsif ( $self->param('conf') eq 'local' ) {
+% if ( $self->param('conf') eq 'local' ) {
 # v12.10.27
+% } elsif ( $self->param('conf') eq 'remote' && $conf ) {
+<%= $conf %>
 % } elsif ( $self->param('conf') eq 'remote' ) {
 # v12.10.27
 
@@ -75,7 +375,7 @@ echo get
 
 #= System Info ===========================================
 PROPERTYGROUP="System Info"
-CemossheInfo
+VelicioInfo
 
 
 #=========================================================
@@ -102,7 +402,9 @@ UpdatesAvailable
 ReleaseUpgrade
 RebootRequired
 
-HDCheck /dev/mapper/ubuntu-root 1000 500	# system disk: 1GB /  500MB  - warn / alert (MByte)
+HDCheck /	1000	500	# system disk: 1GB /  500MB  - warn / alert (MByte)
+HDCheck /boot	100	50	# system disk: 1GB /  500MB  - warn / alert (MByte)
+HDCheck /data	10000	5000	# system disk: 1GB /  500MB  - warn / alert (MByte)
 
 LoadCheck 1 3		# load: warn / alert
 MemCheck 300 100	# free mem: warn / alert (MByte)
@@ -166,15 +468,9 @@ CheckFileChanges authorized_keys /root/.ssh/authorized_keys
 CheckConfigChanges ifconfig.txt "ifconfig | egrep -v -e 'packets|bytes|collisions'"
 CheckConfigChanges routing.txt "netstat -nr"
 #CheckConfigChanges listeners.txt "netstat -tulpen"
-
-
-#=========================================================
-# Push results
-#=========================================================
-
-PushResults $VELICIOUS
 % }
 
+true
 
 #############################################################################
 # Velicio: The agent to Velicious

@@ -3,4 +3,15 @@
 pwd=$(pwd)
 cd $(dirname $0)
 dbicdump -o dump_directory=../lib -o components='["InflateColumn::DateTime"]' -o preserve_case=1 Schema dbi:mysql:database=velite velite velite '{ quote_char => "`" }'
+for i in ../lib/Schema/Result/*.pm; do
+j=$(basename $i .pm)
+[ ! -e ../lib/Schema/ResultSet/$j.pm ] && echo Writing Schema/ResultSet/$j.pm && cat << RESULTSET >> ../lib/Schema/ResultSet/$j.pm
+package Schema::ResultSet::$j;
+
+use Modern::Perl;
+use base 'DBIx::Class::ResultSet';
+
+1;
+RESULTSET
+done
 cd $pwd
