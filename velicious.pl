@@ -16,14 +16,29 @@ use UUID::Tiny;
 use Digest::MD5 qw/md5_hex/;
 use Data::Dumper;
 
+use File::Basename;
 use FindBin qw($Bin);
 use lib "$Bin/lib";
 use subs qw/analyze/;
 use Schema;
 
 # $ENV{DBIC_TRACE}=1;  # If mode == Dev
-app->config(hypnotoad => {pid_file=>$Bin.'/../.velicious', listen=>['http://*:3003'], proxy=>1}, minver => '12.10.30', version => '12.10.30');
-helper db => sub { Schema->connect({dsn=>'DBI:mysql:database=velite;host=localhost',user=>'velite',password=>'velite'}) };
+my $basename = basename $0, '.pl';
+plugin Config => {
+	default => {
+		minver => '12.10.30',
+		version => '12.12.08',
+		db => {
+			db => $basename,
+			host => 'localhost',
+			user => $basename,
+			pass => $basename,
+		},
+	}
+};
+app->config(hypnotoad => {pid_file=>"$Bin/../.$basename", listen=>[split ',', $ENV{MOJO_LISTEN}], proxy=>$ENV{MOJO_REVERSE_PROXY}});
+
+helper db => sub { Schema->connect({dsn=>"DBI:mysql:database=".app->config->{db}->{db}.";host=".app->config->{db}->{host},user=>app->config->{db}->{user},password=>app->config->{db}->{pass}}) };
 helper upgrade => sub {
 	my $self = shift;
 	my $name = shift;
@@ -143,7 +158,7 @@ get '/' => sub {
 	my $self = shift;
 	$self->stash(format => 'json') if $self->req->is_xhr;
 	$self->respond_to(
-		json => {json => {page=>1, pages=>1, records=>110, data=>[app->db->resultset('MyTests')->search(\['email=?', ['email', $self->current_user->email]])->all]}},
+		json => {json => {localtime=>scalar localtime, page=>1, pages=>1, records=>110, data=>[app->db->resultset('MyTests')->search({email=>$self->current_user->email})->all]}},
 		html => {template => 'v'},
 	);
 };
@@ -192,24 +207,59 @@ __DATA__
 <script src="http://jtemplates.tpython.com/jTemplates/jquery-jtemplates.js" type="text/javascript"></script>
 
 <style>
-.INFO {background-color:white}
+* {font-family:verdana;font-size:12px}
+table {border-collapse:collapse}
+th {background-color:gray}
+th,td {padding:0px 5px 0px 5px;margin:0px 5px 0px 5px}
+td.ageWARN {padding:0px 3px 0px 3px;border:2px solid yellow;border-width: 0px 2px 2px 0px;margin:0px 5px 0px 5px}
+td.ageALERT {padding:0px 3px 0px 3px;border:2px solid red;border-width: 0px 2px 2px 0px;margin:0px 5px 0px 5px}
+.expand {cursor:pointer}
+.color {background-color:purple}
+.INFO {background-color:lightgray}
 .OK {background-color:green}
 .WARN {background-color:yellow}
 .ALERT {background-color:red}
 </style>
 <script type="text/javascript">
 $(document).ready(function(){
-   $("#data").setTemplateElement("tData").processTemplateURL("", null, {
+   var sl = new Object();
+   var statuses = new Object();
+   statuses = {NONE:0, INFO:1, OK:2, WARN:3, ALERT:4, UNDEF:5};
+   $("#data").setTemplateElement("tData", null, {runnable_functions: true}).processTemplateStart("", null, 300000, null, {
       on_success: function(){
         $('#datatable tr td[name="status"]').each(function(){
             var status = $(this).html();
             $(this).parent().find(".color").addClass(status);
         });
+        $('#datatable tr td.sncolor.head').each(function(){
+            var sn=$(this).html().replace(/\W/g, '');
+            sl[sn] = 'NONE';
+            $('#datatable tr td[name="status"]['+sn+']').each(function(i){
+                var s=$(this).html();
+                if ( statuses[s] > statuses[sl[sn]] ) {
+                    sl[sn]=s;
+                }
+            });
+            $(this).addClass(sl[sn]);
+        });
+        $('#datatable tr td.pgcolor.head').each(function(){
+            var pg=$(this).html().replace(/\W/g, '');
+            sl[pg] = 'NONE';
+            $('#datatable tr td[name="status"]['+pg+']').each(function(i){
+                var s=$(this).html();
+                if ( statuses[s] > statuses[sl[pg]] ) {
+                    sl[pg]=s;
+                }
+            });
+            $(this).addClass(sl[pg]);
+        });
         $('#datatable tr td[name="details"]').each(function(){
             $(this).toggle(function(){
                 $(this).find('div').show();
+                $(this).find('img').attr({src:"collapse.gif"});
             }, function(){
                 $(this).find('div').hide();
+                $(this).find('img').attr({src:"expand.gif"});
             });
         });
       }
@@ -218,34 +268,50 @@ $(document).ready(function(){
 </script>
 </head>
 <body>
+  Velicious <%= config 'version' %>
+  <div id="data" class="Content"></div>
+
 <!-- Templates -->
     <p style="display:none"><textarea id="tData" rows="0" cols="0"><!--
+    {$T.localtime}
     <table id="datatable">
       <tr>
-        <td class="header">Timestamp</td>
-        <td class="header">System Name</td>
-        <td class="header CellDecimal">Property Group</td>
-        <td class="header">Property Name</td>
-        <td class="header">Status</td>
-        <td class="header">Value</td>
-        <td class="header">Details</td>
+        <th>System Name</th>
+        <th class="CellDecimal">Property Group</th>
+        <th>Property Name</th>
+        <th>Status</th>
+        <th>Value</th>
+        <th>Details</th>
       </tr>
       {#foreach $T.data as r}
         <tr class="{#cycle values=['bcEED','bcDEE']}">
-          <td class="dtcolor">{$T.r$index == 0 || $T.r.dt != $T.data[$T.r$index-1].dt ? $T.r.dt : '&nbsp;'}</td>
-          <td class="sncolor">{$T.r$index == 0 || $T.r.sn != $T.data[$T.r$index-1].sn ? $T.r.sn : '&nbsp;'}</td>
-          <td class="pgcolor"}">{$T.r$index == 0 || $T.r.pg != $T.data[$T.r$index-1].pg ? $T.r.pg : '&nbsp;'}</td>
-          <td class="color">{$T.r.pn}</td>
-          <td class="color" name="status">{$T.r.s}</td>
-          <td class="color">{$T.r.n==null?'&nbsp;':$T.r.n}</td>
-          <td class="color" name="details">{$T.r.y == null || $T.r.y == "" ? $T.r.l.substr(0,$T.r.l.indexOf('\n')<3?80:$T.r.l.indexOf('\n')) : $T.r.y}{#if $T.r.l.indexOf('\n')>=3}<div style="display:none" name="fulltext"><pre>{$T.r.l}</pre></div>{#/if}</td>
+          <td class="age{$T.r$index == 0 || $T.r.sn != $T.data[$T.r$index-1].sn ? $T.r.age : ''} sncolor {$T.r$index == 0 || $T.r.sn != $T.data[$T.r$index-1].sn ? 'head' : ''}">{$T.r$index == 0 || $T.r.sn != $T.data[$T.r$index-1].sn ? $T.r.sn : '&nbsp;'}</td>
+          <td class="age{$T.r$index == 0 || $T.r.sn != $T.data[$T.r$index-1].sn ? $T.r.age : ''} pgcolor {$T.r$index == 0 || $T.r.pg != $T.data[$T.r$index-1].pg ? 'head' : ''}">{$T.r$index == 0 || $T.r.pg != $T.data[$T.r$index-1].pg ? $T.r.pg : '&nbsp;'}</td>
+          <td class="age{$T.r.age} color">{$T.r.pn}</td>
+          <td class="age{$T.r.age} color" name="status" {$T.r.sn.replace(/\W/g, '')}="{$T.r.s}" {$T.r.pg.replace(/\W/g, '')}="{$T.r.s}">{$T.r.s}</td>
+          <td class="age{$T.r.age} color">{$T.r.n==null?'&nbsp;':$T.r.n}</td>
+          {#if $T.r.l.indexOf('\n')>=3}
+            <td class="age{$T.r.age} color expand" name="details"><img src="/expand.gif" />
+              {$T.r.y == null || $T.r.y == "" ? $T.r.l.substr(0,$T.r.l.indexOf('\n')<3?80:$T.r.l.indexOf('\n')) : $T.r.y}
+              <div style="display:none" name="fulltext"><pre>{$T.r.l}</pre></div>
+            </td>
+          {#else}
+            <td class="age{$T.r.age} color" name="details">
+              {$T.r.y == null || $T.r.y == "" ? $T.r.l.substr(0,$T.r.l.indexOf('\n')<3?80:$T.r.l.indexOf('\n')) : $T.r.y}
+            </td>
+          {#/if}
         </tr>
       {#/for}
+      <tr>
+        <th>System Name</th>
+        <th class="CellDecimal">Property Group</th>
+        <th>Property Name</th>
+        <th>Status</th>
+        <th>Value</th>
+        <th>Details</th>
+      </tr>
     </table>
   --></textarea></p>
-
-  <!-- Output elements -->
-  <div id="data" class="Content"></div>
 </body>
 </html>
 
@@ -360,6 +426,14 @@ cd $dir
 #!/bin/sh
 #curl -f -s http://velicio.us/d/velicious.tar.gz | sudo tar xz -C /tmp
 echo get velicio.us
+
+@@ expand.gif (base64)
+R0lGODlhCwALAIAAAAAAAPj8+CH5BAAAAAAALAAAAAALAAsAAAIVhI8Wy6zd
+3gKRujpRjvg6C21hliQFADs=
+
+@@ collapse.gif (base64)
+R0lGODlhCwALAIAAAAAAAPj8+CH5BAAAAAAALAAAAAALAAsAAAIUhI8Wy6zd
+HlxyvkTBdHqHCoFRQhYAOw==
 
 @@ conf.text.ep
 % if ( $self->param('conf') eq 'local' ) {
