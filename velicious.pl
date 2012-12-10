@@ -211,6 +211,7 @@ __DATA__
 table {border-collapse:collapse}
 th {background-color:gray}
 th,td {padding:0px 5px 0px 5px;margin:0px 5px 0px 5px}
+td {vertical-align:top}
 td.ageWARN {padding:0px 3px 0px 3px;border:2px solid yellow;border-width: 0px 2px 2px 0px;margin:0px 5px 0px 5px}
 td.ageALERT {padding:0px 3px 0px 3px;border:2px solid red;border-width: 0px 2px 2px 0px;margin:0px 5px 0px 5px}
 .expand {cursor:pointer}
@@ -280,6 +281,8 @@ $(document).ready(function(){
         <th class="CellDecimal">Property Group</th>
         <th>Property Name</th>
         <th>Status</th>
+        <th>%-OK</th>
+        <th>Time on Status</th>
         <th>Value</th>
         <th>Details</th>
       </tr>
@@ -289,14 +292,18 @@ $(document).ready(function(){
           <td class="age{$T.r$index == 0 || $T.r.sn != $T.data[$T.r$index-1].sn ? $T.r.age : ''} pgcolor {$T.r$index == 0 || $T.r.pg != $T.data[$T.r$index-1].pg ? 'head' : ''}">{$T.r$index == 0 || $T.r.pg != $T.data[$T.r$index-1].pg ? $T.r.pg : '&nbsp;'}</td>
           <td class="age{$T.r.age} color">{$T.r.pn}</td>
           <td class="age{$T.r.age} color" name="status" {$T.r.sn.replace(/\W/g, '')}="{$T.r.s}" {$T.r.pg.replace(/\W/g, '')}="{$T.r.s}">{$T.r.s}</td>
+          <td class="age{$T.r.age} color">{#if $T.r.s != "INFO"}{$T.r.ok}{#/if}</td>
+          <td class="age{$T.r.age} color">{#if $T.r.s != "INFO"}{$T.r.t}{#/if}</td>
           <td class="age{$T.r.age} color">{$T.r.n==null?'&nbsp;':$T.r.n}</td>
-          {#if $T.r.l.indexOf('\n')>=3}
+          {#if $T.r.l == null}
+            <td class="age{$T.r.age} color" name="details"><img src="/blank.gif" width="11" height="11" /></td>
+          {#elseif $T.r.l.indexOf('\n')>=3}
             <td class="age{$T.r.age} color expand" name="details"><img src="/expand.gif" />
               {$T.r.y == null || $T.r.y == "" ? $T.r.l.substr(0,$T.r.l.indexOf('\n')<3?80:$T.r.l.indexOf('\n')) : $T.r.y}
               <div style="display:none" name="fulltext"><pre>{$T.r.l}</pre></div>
             </td>
           {#else}
-            <td class="age{$T.r.age} color" name="details">
+            <td class="age{$T.r.age} color" name="details"><img src="/blank.gif" width="11" height="11" />
               {$T.r.y == null || $T.r.y == "" ? $T.r.l.substr(0,$T.r.l.indexOf('\n')<3?80:$T.r.l.indexOf('\n')) : $T.r.y}
             </td>
           {#/if}
@@ -307,6 +314,8 @@ $(document).ready(function(){
         <th class="CellDecimal">Property Group</th>
         <th>Property Name</th>
         <th>Status</th>
+        <th>%-OK</th>
+        <th>Time on Status</th>
         <th>Value</th>
         <th>Details</th>
       </tr>
@@ -434,6 +443,9 @@ R0lGODlhCwALAIAAAAAAAPj8+CH5BAAAAAAALAAAAAALAAsAAAIVhI8Wy6zd
 @@ collapse.gif (base64)
 R0lGODlhCwALAIAAAAAAAPj8+CH5BAAAAAAALAAAAAALAAsAAAIUhI8Wy6zd
 HlxyvkTBdHqHCoFRQhYAOw==
+
+@@ blank.gif (base64)
+R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAQAIBRAA7
 
 @@ conf.text.ep
 % if ( $self->param('conf') eq 'local' ) {
