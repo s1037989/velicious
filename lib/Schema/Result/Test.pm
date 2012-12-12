@@ -6,9 +6,9 @@ package Schema::Result::Test;
 use strict;
 use warnings;
 
-use base 'DBIx::Class::Core';
+use base 'Schema::Result';
 
-__PACKAGE__->load_components("InflateColumn::DateTime");
+__PACKAGE__->load_components("InflateColumn::DateTime", "Helper::Row::ToJSON");
 
 =head1 NAME
 
@@ -20,7 +20,7 @@ __PACKAGE__->table("tests");
 
 =head1 ACCESSORS
 
-=head2 test_id
+=head2 id
 
   data_type: 'integer'
   is_auto_increment: 1
@@ -38,17 +38,51 @@ __PACKAGE__->table("tests");
   is_nullable: 0
   size: 255
 
+=head2 pg_sort
+
+  data_type: 'integer'
+  is_nullable: 1
+
 =head2 pn
 
   data_type: 'varchar'
   is_nullable: 0
   size: 255
 
-=head2 last_dt
+=head2 pn_sort
+
+  data_type: 'integer'
+  is_nullable: 1
+
+=head2 dt
 
   data_type: 'datetime'
   datetime_undef_if_invalid: 1
   is_nullable: 1
+
+=head2 s
+
+  data_type: 'varchar'
+  is_nullable: 1
+  size: 32
+
+=head2 ok
+
+  data_type: 'varchar'
+  is_nullable: 1
+  size: 6
+
+=head2 t
+
+  data_type: 'varchar'
+  is_nullable: 1
+  size: 16
+
+=head2 n
+
+  data_type: 'varchar'
+  is_nullable: 1
+  size: 32
 
 =head2 y
 
@@ -63,32 +97,45 @@ __PACKAGE__->table("tests");
 =cut
 
 __PACKAGE__->add_columns(
-  "test_id",
+  "id",
   { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
   "uuid",
   { data_type => "char", is_nullable => 0, size => 36 },
   "pg",
   { data_type => "varchar", is_nullable => 0, size => 255 },
+  "pg_sort",
+  { data_type => "integer", is_nullable => 1 },
   "pn",
   { data_type => "varchar", is_nullable => 0, size => 255 },
-  "last_dt",
+  "pn_sort",
+  { data_type => "integer", is_nullable => 1 },
+  "dt",
   {
     data_type => "datetime",
     datetime_undef_if_invalid => 1,
     is_nullable => 1,
   },
+  "s",
+  { data_type => "varchar", is_nullable => 1, size => 32 },
+  "ok",
+  { data_type => "varchar", is_nullable => 1, size => 6 },
+  "t",
+  { data_type => "varchar", is_nullable => 1, size => 16 },
+  "n",
+  { data_type => "varchar", is_nullable => 1, size => 32 },
   "y",
   { data_type => "text", is_nullable => 1 },
   "l",
   { data_type => "text", is_nullable => 1 },
 );
-__PACKAGE__->set_primary_key("test_id");
+__PACKAGE__->set_primary_key("id");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07010 @ 2012-10-31 07:49:51
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:l8L8EBf8tnBOZOSwydpggQ
+# Created by DBIx::Class::Schema::Loader v0.07010 @ 2012-12-10 22:00:42
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:bRHWCZqNyK0ZL99p5phl2A
 
 __PACKAGE__->load_components(qw{Helper::Row::ToJSON});
+__PACKAGE__->belongs_to(system => 'Schema::Result::System', 'uuid');
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 1;

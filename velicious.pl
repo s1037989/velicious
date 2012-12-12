@@ -4,16 +4,12 @@
 use constant VERSION => '12.10.30';
 
 use Mojolicious::Lite;  
-use Mojolicious::Sessions;
 use Mojo::JSON;
-
-my $sessions = Mojolicious::Sessions->new;
-$sessions->cookie_name('velicious');
-$sessions->default_expiration(60*60*24*365);
 
 use MIME::Base64;
 use UUID::Tiny;
 use Digest::MD5 qw/md5_hex/;
+use Switch;
 use Data::Dumper;
 
 use File::Basename;
@@ -121,6 +117,7 @@ get '/logout' => sub {$_[0]->stash(is_user_authenticated => $_[0]->is_user_authe
 
 post '/' => (agent => qr/^Velicio/) => sub {
 	my $self = shift;
+	$self->session(expires=>time+60*60*24*365);
 	return $self->render_json({upgrade => $self->upgrade('Velicio')}) if $self->upgrade('Velicio')->{must_upgrade};
 	$self->session->{uuid} ||= create_UUID_as_string(UUID_V4);
 	local $/ = undef;
@@ -134,11 +131,26 @@ post '/' => (agent => qr/^Velicio/) => sub {
 	my $prev = $self->db->resultset('System')->find({uuid=>$self->session->{uuid}, dt=>$this->dt});
 	my $sn_change = $prev->sn eq $record->{sn};
 	$this->update({dt=>$dt, sn=>$record->{sn}});
+	my @pg = ();
+	my %pn = ();
 	foreach ( @data ) {
 		my ($tests, $details, $vals) = analyze split /\n/, $_, 2 or next;
+		push @pg, $tests->{pg} unless grep { $_ eq $tests->{pg} } @pg;
+		$pn{$tests->{pg}}++;
 		my $test = $self->db->resultset('Test')->find_or_create({uuid=>$self->session->{uuid}, %{$tests}});
-		$test->update({last_dt=>$dt, %{$details}});
-		$self->db->resultset('Val')->create({test_id=>$test->test_id, dt=>$dt, %{$vals}});
+		$self->db->resultset('History')->create({uuid=>$self->session->{uuid}, %{$tests}, dt=>$dt, %{$vals}});
+		my $ok = $self->db->resultset('History')->search({uuid=>$self->session->{uuid}, %{$tests}, s=>'OK'});
+		my $c = $self->db->resultset('History')->search({uuid=>$self->session->{uuid}, %{$tests}})->count;
+		my $t;
+		if ( $t = $self->db->resultset('History')->search({uuid=>$self->session->{uuid}, %{$tests}, 's'=>{'!='=>$vals->{'s'}}}, {order_by=>'dt desc', rows=>1}) ) {
+			if ( $t = $t->next ) {
+				$t = $t->dt;
+			}
+		}
+		$ok = sprintf("%.2f", $c?$ok/$c*100:0);
+		my ($pg) = grep { $pg[$_] eq $tests->{pg} } 0..$#pg;
+		my $extra = {pg_sort=>$pg, pn_sort=>$pn{$tests->{pg}}, ok=>$ok, t=>$t};
+		$test->update({dt=>$dt, %{$vals}, %{$details}, %{$extra}});
 	}
 	return $self->render_json({
 		at => [],
@@ -156,23 +168,19 @@ get '/conf/:conf' => {conf => 'remote'} => sub {
 under '/v' => sub { shift->is_user_authenticated };
 get '/' => sub {
 	my $self = shift;
-	$self->stash(format => 'json') if $self->req->is_xhr;
-	$self->respond_to(
-		json => {json => {localtime=>scalar localtime, page=>1, pages=>1, records=>110, data=>[app->db->resultset('MyTests')->search({email=>$self->current_user->email})->all]}},
-		html => {template => 'v'},
-	);
-};
-get '/:uuid' => sub {
-	my $self = shift;
-	$self->render_json([app->db->resultset('MyTests')->search(\['email=? and uuid=?', ['email', $self->current_user->email], ['uuid', $self->param('uuid')]])->all]);
-};
-get '/:uuid/:pg' => sub {
-	my $self = shift;
-	$self->render_json([app->db->resultset('MyTests')->search(\['email=? and uuid=? and pg=?', ['email', $self->current_user->email], ['uuid', $self->param('uuid')], ['pg', $self->param('pg')]])->all]);
-};
-get '/:uuid/:pg/:pn' => sub {
-	my $self = shift;
-	$self->render_json([app->db->resultset('MyTests')->search(\['email=? and uuid=? and pg=? and pn=?', ['email', $self->current_user->email], ['uuid', $self->param('uuid')], ['pg', $self->param('pg')], ['pn', $self->param('pn')]])->all]);
+	switch ( $self->req->is_xhr ) {
+		case 0 {
+			$self->respond_to(
+				html => {template => 'v'},
+			);
+		}
+		case 1 {
+			my %search = map { $_ => $self->param($_) } grep { $self->param($_) } qw/label uuid pg pn/;
+			$self->respond_to(
+				json => {json => {localtime=>scalar localtime, page=>1, pages=>1, records=>110, data=>[app->db->resultset('MyTests')->search({email=>$self->current_user->email, %search}, {order_by=>'sn,pg_sort,pn_sort'})->all]}},
+			);
+		}
+	}
 };
 
 app->start;
@@ -204,7 +212,7 @@ __DATA__
 <title>My First Grid</title>
 
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js" type="text/javascript"></script>
-<script src="http://jtemplates.tpython.com/jTemplates/jquery-jtemplates.js" type="text/javascript"></script>
+<script src="/s/jquery-jtemplates_uncompressed.js" type="text/javascript"></script>
 
 <style>
 * {font-family:verdana;font-size:12px}
@@ -227,6 +235,9 @@ $(document).ready(function(){
    var statuses = new Object();
    statuses = {NONE:0, INFO:1, OK:2, WARN:3, ALERT:4, UNDEF:5};
    $("#data").setTemplateElement("tData", null, {runnable_functions: true}).processTemplateStart("", null, 300000, null, {
+      headers: {  
+        Accept : "application/json; charset=utf-8"
+      },
       on_success: function(){
         $('#datatable tr td[name="status"]').each(function(){
             var status = $(this).html();
@@ -276,24 +287,26 @@ $(document).ready(function(){
     <p style="display:none"><textarea id="tData" rows="0" cols="0"><!--
     {$T.localtime}
     <table id="datatable">
-      <tr>
-        <th>System Name</th>
-        <th class="CellDecimal">Property Group</th>
-        <th>Property Name</th>
-        <th>Status</th>
-        <th>%-OK</th>
-        <th>Time on Status</th>
-        <th>Value</th>
-        <th>Details</th>
-      </tr>
       {#foreach $T.data as r}
+        {#if $T.r$index == 0 || $T.r.sn != $T.data[$T.r$index-1].sn}
+        <tr>
+          <th>System Name</th>
+          <th class="CellDecimal">Property Group</th>
+          <th>Property Name</th>
+          <th>Status</th>
+          <th>%-OK</th>
+          <th>Time on Status</th>
+          <th>Value</th>
+          <th>Details</th>
+        </tr>
+        {#/if}
         <tr class="{#cycle values=['bcEED','bcDEE']}">
           <td class="age{$T.r$index == 0 || $T.r.sn != $T.data[$T.r$index-1].sn ? $T.r.age : ''} sncolor {$T.r$index == 0 || $T.r.sn != $T.data[$T.r$index-1].sn ? 'head' : ''}">{$T.r$index == 0 || $T.r.sn != $T.data[$T.r$index-1].sn ? $T.r.sn : '&nbsp;'}</td>
           <td class="age{$T.r$index == 0 || $T.r.sn != $T.data[$T.r$index-1].sn ? $T.r.age : ''} pgcolor {$T.r$index == 0 || $T.r.pg != $T.data[$T.r$index-1].pg ? 'head' : ''}">{$T.r$index == 0 || $T.r.pg != $T.data[$T.r$index-1].pg ? $T.r.pg : '&nbsp;'}</td>
           <td class="age{$T.r.age} color">{$T.r.pn}</td>
           <td class="age{$T.r.age} color" name="status" {$T.r.sn.replace(/\W/g, '')}="{$T.r.s}" {$T.r.pg.replace(/\W/g, '')}="{$T.r.s}">{$T.r.s}</td>
           <td class="age{$T.r.age} color">{#if $T.r.s != "INFO"}{$T.r.ok}{#/if}</td>
-          <td class="age{$T.r.age} color">{#if $T.r.s != "INFO"}{$T.r.t}{#/if}</td>
+          <td class="age{$T.r.age} color">{#if $T.r.s != "INFO"}{$T.r.t==null?'':$T.r.t}{#/if}</td>
           <td class="age{$T.r.age} color">{$T.r.n==null?'&nbsp;':$T.r.n}</td>
           {#if $T.r.l == null}
             <td class="age{$T.r.age} color" name="details"><img src="/blank.gif" width="11" height="11" /></td>

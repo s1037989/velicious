@@ -6,9 +6,9 @@ package Schema::Result::System;
 use strict;
 use warnings;
 
-use base 'DBIx::Class::Core';
+use base 'Schema::Result';
 
-__PACKAGE__->load_components("InflateColumn::DateTime");
+__PACKAGE__->load_components("InflateColumn::DateTime", "Helper::Row::ToJSON");
 
 =head1 NAME
 
@@ -39,12 +39,6 @@ __PACKAGE__->table("systems");
   default_value: current_timestamp
   is_nullable: 0
 
-=head2 dg
-
-  data_type: 'varchar'
-  is_nullable: 1
-  size: 255
-
 =head2 sn
 
   data_type: 'varchar'
@@ -74,8 +68,6 @@ __PACKAGE__->add_columns(
     default_value => \"current_timestamp",
     is_nullable => 0,
   },
-  "dg",
-  { data_type => "varchar", is_nullable => 1, size => 255 },
   "sn",
   { data_type => "varchar", is_nullable => 1, size => 255 },
   "conf",
@@ -84,10 +76,11 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("uuid");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07010 @ 2012-11-01 08:25:10
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:fuupUF2mV6ajU5W49F1Niw
+# Created by DBIx::Class::Schema::Loader v0.07010 @ 2012-12-10 18:02:04
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:s8K/XQ2+AJrEQR3Azl0n2w
 
 __PACKAGE__->load_components(qw{Helper::Row::ToJSON});
+__PACKAGE__->has_many(subscriptions => 'Schema::Result::Subscription', 'uuid');
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 1;
