@@ -5,6 +5,9 @@ use constant VERSION => '12.10.30';
 
 use Mojolicious::Lite;  
 use Mojo::JSON;
+use Mojo::IOLoop;
+use Mojo::Util qw(b64_decode b64_encode);
+use Mojolicious::Sessions;
 
 use MIME::Base64;
 use UUID::Tiny;
@@ -33,6 +36,7 @@ plugin Config => {
 	}
 };
 app->config(hypnotoad => {pid_file=>"$Bin/../.$basename", listen=>[split ',', $ENV{MOJO_LISTEN}], proxy=>$ENV{MOJO_REVERSE_PROXY}});
+app->sessions->default_expiration(60*60*24*365);
 
 helper db => sub { Schema->connect({dsn=>"DBI:mysql:database=".app->config->{db}->{db}.";host=".app->config->{db}->{host},user=>app->config->{db}->{user},password=>app->config->{db}->{pass}}) };
 helper upgrade => sub {
@@ -57,6 +61,17 @@ helper upgrade => sub {
 	#warn Dumper($self->{__UPGRADE});
 	return $self->{__UPGRADE};
 };
+helper json => sub {
+	my $self = shift;
+	#warn Dumper({body => $self->req->body});
+	unless ( $self->{__JSON} ) {   
+		my $json = new Mojo::JSON;
+		$self->{__JSON} = $json->decode($self->req->body);
+	}
+	#warn Dumper({json => $self->{__JSON}});
+	return $self->{__JSON}||{};
+};
+
 plugin 'HeaderCondition';
 plugin 'IsXHR';
 plugin 'authentication' => {
@@ -117,7 +132,6 @@ get '/logout' => sub {$_[0]->stash(is_user_authenticated => $_[0]->is_user_authe
 
 post '/' => (agent => qr/^Velicio/) => sub {
 	my $self = shift;
-	$self->session(expires=>time+60*60*24*365);
 	return $self->render_json({upgrade => $self->upgrade('Velicio')}) if $self->upgrade('Velicio')->{must_upgrade};
 	$self->session->{uuid} ||= create_UUID_as_string(UUID_V4);
 	local $/ = undef;
@@ -165,9 +179,87 @@ get '/conf/:conf' => {conf => 'remote'} => sub {
 	return $self->render('conf', format=>'text', conf=>defined $conf ? $conf->conf : '');
 };
 
+my $clients = {};
+
+websocket '/ws' => sub {
+	my $self = shift;
+	Mojo::IOLoop->stream($self->tx->connection)->timeout(330);
+	my $id = sprintf "%s", $self->tx;
+	app->log->debug(sprintf 'Client connected: %s', $id);
+	$clients->{$id}->{tx} = $self->tx;
+	$self->on(message => sub {
+		my ($e, $msg) = @_;
+		my $json = new Mojo::JSON;
+		my $req = $json->decode($msg);
+		$req = ref $req eq 'HASH' ? [$req] : undef unless ref $req eq 'ARRAY';
+		foreach ( @$req ) {
+			#warn Dumper($_);
+			if ( exists $_->{session} ) {
+				if ( defined $_->{session} ) {
+					warn "Received Session and Decoding\n";
+					my $value = $_->{session};
+					if ($value =~ s/--([^\-]+)$//) {
+						my $sig = $1;
+						my $check = Mojo::Util::hmac_sha1_sum $value, $self->stash->{'mojo.secret'};
+						if ( Mojo::Util::secure_compare $sig, $check ) {
+							warn "Successfully processed Session.\n";
+							$value =~ s/-/=/g;
+							$clients->{$id}->{session} = Mojo::JSON->new->decode(b64_decode $value);
+							warn Dumper({session=>$clients->{$id}->{session}});
+						} else {
+							warn "Bad signed Session, possible hacking attempt.\n";
+							$self->app->log->debug(qq{Bad signed Session, possible hacking attempt.});
+						}
+					} else {
+						warn "Session not signed.\n";
+						$self->app->log->debug(qq{Session not signed.});
+					}
+				} else {
+					warn "Requested Session and Encoding\n";
+					$clients->{$id}->{session}->{uuid} = create_UUID_as_string(UUID_V4);
+					my $value = b64_encode(Mojo::JSON->new->encode($clients->{$id}->{session}), '');
+					$value =~ s/=/-/g;
+					$e->tx->send($json->encode({session=>"$value--".Mojo::Util::hmac_sha1_sum($value, $self->stash->{'mojo.secret'})}));
+				}
+			} else {
+				warn Dumper($_);
+			}
+		}
+		$e->tx->send($json->encode({res=>'ok'}));
+	});
+	$self->on(finish => sub {
+		app->log->debug(sprintf 'Client disconnected: %s', $id);
+		delete $clients->{$id};
+	});
+};
+
+post '/cmd/:cmd' => sub {
+	my $self = shift;
+	my $json = new Mojo::JSON;
+	my $req = $self->json;
+	$req = ref $req eq 'HASH' ? [$req] : undef unless ref $req eq 'ARRAY';
+	foreach ( grep { exists $_->{uuid} } @$req ) {
+		warn Dumper({velicio_req=>$_});
+		foreach my $uuid ( @{$_->{uuid}} ) {
+			my ($client) = grep { $clients->{$_}->{session}->{uuid} eq $uuid } keys %$clients;
+			next unless $client;
+			warn Dumper({client=>$client, uuid=>$uuid});
+			$clients->{$client}->{tx}->send($json->encode({$self->param('cmd')=>$_->{args}||1}));
+		}
+	}
+	$self->render_json({res=>'ok'});
+};
+
+post '/test' => sub {
+	my $self = shift;
+	warn Dumper($self->req->body);
+	$self->render_json({res=>'ok'});
+};
+
 under '/v' => sub { shift->is_user_authenticated };
 get '/' => sub {
 	my $self = shift;
+	my %filter = filter(map { $_ => $self->param($_) } grep { $self->param($_) } qw/label uuid pg pn s/);
 	switch ( $self->req->is_xhr ) {
 		case 0 {
 			$self->respond_to(
@@ -175,15 +267,20 @@ get '/' => sub {
 			);
 		}
 		case 1 {
-			my %search = map { $_ => $self->param($_) } grep { $self->param($_) } qw/label uuid pg pn/;
 			$self->respond_to(
-				json => {json => {localtime=>scalar localtime, page=>1, pages=>1, records=>110, data=>[app->db->resultset('MyTests')->search({email=>$self->current_user->email, %search}, {order_by=>'sn,pg_sort,pn_sort'})->all]}},
+				json => {json => {localtime=>scalar localtime, page=>1, pages=>1, records=>110, data=>[app->db->resultset('MyTests')->search({email=>$self->current_user->email, %filter}, {order_by=>'label,sn,pg_sort,pn_sort'})->all]}},
 			);
 		}
 	}
 };
 
 app->start;
+
+
+sub filter {
+	my %filter = @_;
+	return %filter;
+}
 
 sub lines {
 	my $l = shift;
@@ -209,9 +306,11 @@ __DATA__
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>My First Grid</title>
+<title>Velicious</title>
 
+<link   href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" type="text/css" rel="stylesheet" media="all" />
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js" type="text/javascript"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js" type="text/javascript"></script>
 <script src="/s/jquery-jtemplates_uncompressed.js" type="text/javascript"></script>
 
 <style>
@@ -234,7 +333,7 @@ $(document).ready(function(){
    var sl = new Object();
    var statuses = new Object();
    statuses = {NONE:0, INFO:1, OK:2, WARN:3, ALERT:4, UNDEF:5};
-   $("#data").setTemplateElement("tData", null, {runnable_functions: true}).processTemplateStart("", null, 300000, null, {
+   $("#data").setTemplateElement("tData", null, {runnable_functions: true}).processTemplateStart("", null, 300000, $("#filter").serialize(), {
       headers: {  
         Accept : "application/json; charset=utf-8"
       },
@@ -242,6 +341,17 @@ $(document).ready(function(){
         $('#datatable tr td[name="status"]').each(function(){
             var status = $(this).html();
             $(this).parent().find(".color").addClass(status);
+        });
+        $('#datatable tr td.labelcolor.head').each(function(){
+            var label=$(this).html().replace(/\W/g, '');
+            sl[label] = 'NONE';
+            $('#datatable tr td[name="status"]['+label+']').each(function(i){
+                var s=$(this).html();
+                if ( statuses[s] > statuses[sl[label]] ) {
+                    sl[label]=s;
+                }
+            });
+            $(this).addClass(sl[label]);
         });
         $('#datatable tr td.sncolor.head').each(function(){
             var sn=$(this).html().replace(/\W/g, '');
@@ -276,11 +386,34 @@ $(document).ready(function(){
         });
       }
    });
+    $("#btnfilter").click(function(){
+        $.get("<%= url_for 'filter' %>", $("#filter").serialize(), function(data){
+            console.log(data);
+            if ( data.response == "ok" ) {
+                $("#admin-msg").addClass('ok').removeClass('err').html(data.message).show().delay(2500).fadeOut();
+            } else {
+                $("#admin-msg").addClass('err').removeClass('ok').html(data.message).show().delay(2500).fadeOut();
+            }
+        });
+    });
+
+    $("a.button").button();
 });
 </script>
 </head>
 <body>
-  Velicious <%= config 'version' %>
+  Velicious <%= config 'version' %><br />
+  Filter:<br />
+  <form id="filter" action="<%= url_for %>">
+  <table>
+    <tr><td>Label:</td><td><input type="text" name="label" value="<%= param 'label' %>" /></td></tr>
+    <tr><td>Property Group:</td><td><input type="text" name="pg" value="<%= param 'pg' %>" /></td></tr>
+    <tr><td>Property Name:</td><td><input type="text" name="pn" value="<%= param 'pn' %>" /></td></tr>
+    <tr><td>status:</td><td><input type="text" name="s" value="<%= param 's' %>" /></td></tr>
+    <tr><td colspan="2"><input type="submit" value="Filter" /></td></tr>
+  </table>
+  </form>
+  <hr />
   <div id="data" class="Content"></div>
 
 <!-- Templates -->
@@ -288,8 +421,9 @@ $(document).ready(function(){
     {$T.localtime}
     <table id="datatable">
       {#foreach $T.data as r}
-        {#if $T.r$index == 0 || $T.r.sn != $T.data[$T.r$index-1].sn}
+        {#if $T.r$index == 0 || $T.r.label != $T.data[$T.r$index-1].label}
         <tr>
+          <th>Label</th>
           <th>System Name</th>
           <th class="CellDecimal">Property Group</th>
           <th>Property Name</th>
@@ -299,8 +433,23 @@ $(document).ready(function(){
           <th>Value</th>
           <th>Details</th>
         </tr>
+        {#else}
+          {#if $T.r$index == 0 || $T.r.sn != $T.data[$T.r$index-1].sn}
+          <tr>
+            <td>&nbsp;</td>
+            <th>System Name</th>
+            <th class="CellDecimal">Property Group</th>
+            <th>Property Name</th>
+            <th>Status</th>
+            <th>%-OK</th>
+            <th>Time on Status</th>
+            <th>Value</th>
+            <th>Details</th>
+          </tr>
+          {#/if}
         {#/if}
         <tr class="{#cycle values=['bcEED','bcDEE']}">
+          <td class="age{$T.r$index == 0 || $T.r.label != $T.data[$T.r$index-1].label ? $T.r.age : ''} labelcolor {$T.r$index == 0 || $T.r.label != $T.data[$T.r$index-1].label ? 'head' : ''}">{$T.r$index == 0 || $T.r.label != $T.data[$T.r$index-1].label ? $T.r.label : '&nbsp;'}</td>
           <td class="age{$T.r$index == 0 || $T.r.sn != $T.data[$T.r$index-1].sn ? $T.r.age : ''} sncolor {$T.r$index == 0 || $T.r.sn != $T.data[$T.r$index-1].sn ? 'head' : ''}">{$T.r$index == 0 || $T.r.sn != $T.data[$T.r$index-1].sn ? $T.r.sn : '&nbsp;'}</td>
           <td class="age{$T.r$index == 0 || $T.r.sn != $T.data[$T.r$index-1].sn ? $T.r.age : ''} pgcolor {$T.r$index == 0 || $T.r.pg != $T.data[$T.r$index-1].pg ? 'head' : ''}">{$T.r$index == 0 || $T.r.pg != $T.data[$T.r$index-1].pg ? $T.r.pg : '&nbsp;'}</td>
           <td class="age{$T.r.age} color">{$T.r.pn}</td>
@@ -323,6 +472,7 @@ $(document).ready(function(){
         </tr>
       {#/for}
       <tr>
+        <th>Label</th>
         <th>System Name</th>
         <th class="CellDecimal">Property Group</th>
         <th>Property Name</th>
@@ -482,10 +632,10 @@ VelicioInfo
 #=========================================================
 
 #= Test ==================================================
-PROPERTYGROUP="Tests"
-ForceStatus TestOK OK
-ForceStatus TestWARN WARN
-ForceStatus TestALERT ALERT
+#PROPERTYGROUP="Tests"
+#ForceStatus TestOK OK
+#ForceStatus TestWARN WARN
+#ForceStatus TestALERT ALERT
 
 #= Snapshots =============================================
 #PROPERTYGROUP="Snapshots"
@@ -503,7 +653,7 @@ RebootRequired
 
 HDCheck /	1000	500	# system disk: 1GB /  500MB  - warn / alert (MByte)
 HDCheck /boot	100	50	# system disk: 1GB /  500MB  - warn / alert (MByte)
-HDCheck /data	10000	5000	# system disk: 1GB /  500MB  - warn / alert (MByte)
+#HDCheck /data	10000	5000	# system disk: 1GB /  500MB  - warn / alert (MByte)
 
 LoadCheck 1 3		# load: warn / alert
 MemCheck 300 100	# free mem: warn / alert (MByte)
