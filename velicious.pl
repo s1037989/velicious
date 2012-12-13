@@ -196,7 +196,7 @@ websocket '/ws' => sub {
 			#warn Dumper($_);
 			if ( exists $_->{session} ) {
 				if ( defined $_->{session} ) {
-					warn "Received Session and Decoding\n";
+					warn "Received Session from Client and Storing in Memory\n";
 					my $value = $_->{session};
 					if ($value =~ s/--([^\-]+)$//) {
 						my $sig = $1;
@@ -205,7 +205,8 @@ websocket '/ws' => sub {
 							warn "Successfully processed Session.\n";
 							$value =~ s/-/=/g;
 							$clients->{$id}->{session} = Mojo::JSON->new->decode(b64_decode $value);
-							warn Dumper({session=>$clients->{$id}->{session}});
+							warn "  UUID -> $clients->{$id}->{session}->{uuid}\n";
+							#warn Dumper({session=>$clients->{$id}->{session}});
 						} else {
 							warn "Bad signed Session, possible hacking attempt.\n";
 							$self->app->log->debug(qq{Bad signed Session, possible hacking attempt.});
@@ -215,17 +216,25 @@ websocket '/ws' => sub {
 						$self->app->log->debug(qq{Session not signed.});
 					}
 				} else {
-					warn "Requested Session and Encoding\n";
+					warn "Generating Session and Sending to Client\n";
 					$clients->{$id}->{session}->{uuid} = create_UUID_as_string(UUID_V4);
+					warn "  UUID -> $clients->{$id}->{session}->{uuid}\n";
 					my $value = b64_encode(Mojo::JSON->new->encode($clients->{$id}->{session}), '');
 					$value =~ s/=/-/g;
 					$e->tx->send($json->encode({session=>"$value--".Mojo::Util::hmac_sha1_sum($value, $self->stash->{'mojo.secret'})}));
+				}
+			} elsif ( exists $_->{config} ) {
+				if ( defined $_->{config} ) {
+					warn "Received config, but why?\n";
+				} else {
+					warn "Looking up Config and Sending to Client\n";
+					$e->tx->send($json->encode({config=>{}}));
 				}
 			} else {
 				warn Dumper($_);
 			}
 		}
-		$e->tx->send($json->encode({res=>'ok'}));
+		#$e->tx->send($json->encode({res=>'ok'}));
 	});
 	$self->on(finish => sub {
 		app->log->debug(sprintf 'Client disconnected: %s', $id);
