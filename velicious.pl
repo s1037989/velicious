@@ -42,8 +42,9 @@ helper db => sub { Schema->connect({dsn=>"DBI:mysql:database=".app->config->{db}
 helper upgrade => sub {
 	my $self = shift;
 	my $name = shift;
+	my $current = shift;
 	return $self->{__UPGRADE} if $self->{__UPGRADE};
-	my ($current) = ($self->req->headers->user_agent =~ /^$name\/(\S+)/);
+	#my ($current) = ($self->req->headers->user_agent =~ /^$name\/(\S+)/);
 	my $_current = $current;
 	my $_min = $self->app->config->{minver};
 	my $_latest = $self->app->config->{version};
@@ -181,7 +182,8 @@ get '/conf/:conf' => {conf => 'remote'} => sub {
 
 my $clients = {};
 
-websocket '/ws' => sub {
+under '/ws';
+websocket '/' => sub {
 	my $self = shift;
 	Mojo::IOLoop->stream($self->tx->connection)->timeout(330);
 	my $id = sprintf "%s", $self->tx;
@@ -194,6 +196,15 @@ websocket '/ws' => sub {
 		$req = ref $req eq 'HASH' ? [$req] : undef unless ref $req eq 'ARRAY';
 		foreach ( @$req ) {
 			#warn Dumper($_);
+			if ( exists $_->{version} ) {
+				if ( defined $_->{version} ) {
+					$clients->{$id}->{version} = $_->{version};
+				} else {
+					warn "Client version not defined\n";
+				}
+				delete $_->{version};
+			}
+			next unless defined $clients->{$id}->{version};
 			if ( exists $_->{session} ) {
 				if ( defined $_->{session} ) {
 					warn "Received Session from Client and Storing in Memory\n";
@@ -223,18 +234,85 @@ websocket '/ws' => sub {
 					$value =~ s/=/-/g;
 					$e->tx->send($json->encode({session=>"$value--".Mojo::Util::hmac_sha1_sum($value, $self->stash->{'mojo.secret'})}));
 				}
-			} elsif ( exists $_->{config} ) {
+				delete $_->{session};
+			}
+			next unless defined $clients->{$id}->{session};
+			if ( exists $_->{config} ) {
 				if ( defined $_->{config} ) {
 					warn "Received config, but why?\n";
 				} else {
 					warn "Looking up Config and Sending to Client\n";
-					$e->tx->send($json->encode({config=>{}}));
+					$clients->{$id}->{config} = {};
+					$e->tx->send($json->encode({config=>$clients->{$id}->{config}}));
+				}
+				delete $_->{config};
+			}
+			next unless defined $clients->{$id}->{config};
+
+			next unless keys %$_;
+			warn "Other: ", Dumper($_);
+			if ( exists $_->{sensors} ) {
+				if ( defined $_->{sensors} ) {
+					if ( $self->upgrade('Velicio', $clients->{$id}->{version})->{must_upgrade} ) {
+						$e->tx->send($json->encode({upgrade => $self->upgrade('Velicio', $clients->{$id}->{version})}));
+						next;
+					}
+					if ( $self->upgrade('Velicio', $clients->{$id}->{version})->{can_upgrade} ) {
+						$e->tx->send($json->encode({upgrade => $self->upgrade('Velicio', $clients->{$id}->{version})}));
+					}
+					unless ( $clients->{$id}->{session} ) {
+						$clients->{$id}->{tx}->send($json->encode({session=>undef}));
+						next;
+					}
+					my $session = $clients->{$id}->{session};
+					local $/ = undef;
+					my @dt = localtime; $dt[4]++; $dt[5]+=1900;
+					my $dt = sprintf("%04d-%02d-%02d %02d:%02d:%02d", reverse @dt[0..5]);
+
+	return;
+					my @data = split /\n\n/, $self->req->body;
+					my $record = Mojo::JSON->decode(shift @data);
+					my $time_offset = time - ($record->{dt}||time); # account for time zones
+					my $this = $self->db->resultset('System')->find_or_create({uuid=>$session->{uuid}, create_dt=>$dt});
+					my $prev = $self->db->resultset('System')->find({uuid=>$session->{uuid}, dt=>$this->dt});
+					my $sn_change = $prev->sn eq $record->{sn};
+					$this->update({dt=>$dt, sn=>$record->{sn}});
+					my @pg = ();
+					my %pn = ();
+					foreach ( @data ) {
+						my ($tests, $details, $vals) = analyze split /\n/, $_, 2 or next;
+						push @pg, $tests->{pg} unless grep { $_ eq $tests->{pg} } @pg;
+						$pn{$tests->{pg}}++;
+						my $test = $self->db->resultset('Test')->find_or_create({uuid=>$session->{uuid}, %{$tests}});
+						$self->db->resultset('History')->create({uuid=>$session->{uuid}, %{$tests}, dt=>$dt, %{$vals}});
+						my $ok = $self->db->resultset('History')->search({uuid=>$session->{uuid}, %{$tests}, s=>'OK'});
+						my $c = $self->db->resultset('History')->search({uuid=>$session->{uuid}, %{$tests}})->count;
+						my $t;
+						if ( $t = $self->db->resultset('History')->search({uuid=>$session->{uuid}, %{$tests}, 's'=>{'!='=>$vals->{'s'}}}, {order_by=>'dt desc', rows=>1}) ) {
+							if ( $t = $t->next ) {
+								$t = $t->dt;
+							}
+						}
+						$ok = sprintf("%.2f", $c?$ok/$c*100:0);
+						my ($pg) = grep { $pg[$_] eq $tests->{pg} } 0..$#pg;
+						my $extra = {pg_sort=>$pg, pn_sort=>$pn{$tests->{pg}}, ok=>$ok, t=>$t};
+						$test->update({dt=>$dt, %{$vals}, %{$details}, %{$extra}});
+					}
+				} else {
+					warn "No sensors defined\n";
+				}
+			} elsif ( exists $_->{res} || exists $_->{msg} ) {
+				if ( $_->{res} eq 'ok' ) {
+					warn "Client processing successful\n";
+				} elsif ( $_->{res} eq 'err' ) {
+					warn "Client processing failed: $_->{msg}\n";
+				} else {
+					warn "Unknown response from client\n";
 				}
 			} else {
-				warn Dumper($_);
+				warn "Unknown request from client\n";
 			}
 		}
-		#$e->tx->send($json->encode({res=>'ok'}));
 	});
 	$self->on(finish => sub {
 		app->log->debug(sprintf 'Client disconnected: %s', $id);
@@ -247,16 +325,24 @@ post '/cmd/:cmd' => sub {
 	my $json = new Mojo::JSON;
 	my $req = $self->json;
 	$req = ref $req eq 'HASH' ? [$req] : undef unless ref $req eq 'ARRAY';
+	my $res = {
+		total => 0,
+		ok => 0,
+		err => 0,
+	};
 	foreach ( grep { exists $_->{uuid} } @$req ) {
-		warn Dumper({velicio_req=>$_});
+		#warn Dumper({velicio_req=>$_});
+		$res->{total} = $#{$_->{uuid}}+1;
 		foreach my $uuid ( @{$_->{uuid}} ) {
 			my ($client) = grep { $clients->{$_}->{session}->{uuid} eq $uuid } keys %$clients;
 			next unless $client;
-			warn Dumper({client=>$client, uuid=>$uuid});
-			$clients->{$client}->{tx}->send($json->encode({$self->param('cmd')=>$_->{args}||1}));
+			#warn Dumper({client=>$client, uuid=>$uuid});
+			$clients->{$client}->{tx}->send($json->encode($_->{args} ? {$self->param('cmd')=>$_->{args}} : [$self->param('cmd')]));
+			$res->{ok}++;
 		}
 	}
-	$self->render_json({res=>'ok'});
+	$res->{err} = $res->{total} - $res->{ok};
+	$self->render_json($res->{ok}==$res->{total}?{res=>'ok'}:{res=>'err',msg=>"$res->{err} errors"});
 };
 
 post '/test' => sub {
