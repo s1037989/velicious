@@ -1,16 +1,250 @@
+package Velicious;
+
+our $VERSION = '12.12.18';
+
+use Scalar::Util 'blessed';
+use Digest;
+use Data::Serializer;
+use Mojo::IOLoop;
+use UUID::Tiny;
+
+use Data::Dumper;
+
+my $clients = {};
+sub clients {
+	if ( $_[0] ) {
+		grep { $clients->{$_}->{__REGISTRATION} && ref $clients->{$_}->{__REGISTRATION} eq 'HASH' && $clients->{$_}->{__REGISTRATION}->{agent} eq $_[0] } keys %$clients;
+	} else {
+		keys %$clients;
+	}
+}
+sub client { my $id = ref $_[0] eq __PACKAGE__ ? $_[1] : $_[0]; bless {id=>$id}, __PACKAGE__ }
+
+sub _unbless {
+	my $value = shift;
+
+	if (my $ref = ref $value) {
+		return [map { _unbless($_) } @$value] if $ref eq 'ARRAY';
+		return {map { $_ => _unbless($value->{$_}) } keys %$value} if $ref eq 'HASH';
+		return $value if $ref eq 'SCALAR';
+		return ''.$value if blessed $value;
+		return undef;
+	}
+	return $value;
+}
+
+sub new {
+	my $class = shift;
+	if ( ref $_[0] ) { # New agent connection
+		Mojo::IOLoop->stream($_[0]->{tx}->connection)->timeout(330);
+		my $id = sprintf "%s", $_[0]->{tx};
+		warn "Client connected: $id\n";
+		$clients->{$id} = $_[0];
+		bless {id=>$id}, $class;
+	} else { # Find existing agent connection
+		my $id = shift;
+		($id) = grep { $clients->{$_}->{__REGISTRATION} && $clients->{$_}->{__REGISTRATION}->{agent} eq $id } clients();
+		bless {id=>$id}, $class;
+	}
+}
+
+sub id { shift->{id} }
+sub db { $clients->{shift->id}->{db} }
+
+sub secret {
+	my $self = shift;
+	$self->{__SECRET} = $_[0] if $_[0];
+	warn "Your secret passphrase needs to be changed!!!\n" unless $self->{__SECRET};
+	return $self->{__SECRET} || ref $self;
+}
+
+sub agent {
+	my $self = shift;
+	if ( $_[0] ) {
+		$self->{__AGENT} = ref $_[0] eq 'HASH' ? $_[0] : {@_};
+	}
+	return $self->{__AGENT} || {};
+}
+
+sub tx {
+	my $self = shift;
+	if ( my $tx = shift ) {
+		warn "Storing tx\n";
+		$clients->{$self->id}->{tx} = $tx;
+	}
+	return $clients->{$self->id}->{tx}->can('send') ? $clients->{$self->id}->{tx} : undef;
+}
+
+sub send {
+	my $self = shift;
+	my $msg = shift;
+	if ( $msg && ref $msg eq 'HASH' ) {
+		my $_msg = $msg;
+		$msg = $self->serializer->serialize(_unbless($msg));
+		#warn Dumper({send => [$_msg, $msg]});
+		$self->tx->send($msg) if ! ref $msg;
+	}
+}
+ 
+sub recv {
+	my $self = shift;
+	my $msg = shift;
+	if ( $msg && ! ref $msg ) {
+		my $_msg = $msg;
+		$msg = $self->serializer->deserialize($msg);
+		#warn Dumper({recv => [$_msg, $msg]});
+		$self->{__RECV} = $msg and $self->process if ref $msg eq 'HASH';
+	}
+	return $self->{__RECV};
+}
+ 
+sub disconnect {
+	my $self = shift;
+	$clients->{$self->id}->{tx}->finish;
+	delete $clients->{$self->id};
+}
+sub disconnected { $clients->{$self->id} ? 0 : 1 }
+
+sub serializer {
+	my $self = shift;
+	my $secret = shift;
+	if ( $secret ) {
+		return $self->{"__SERIALIZER_$secret"} ||= new Data::Serializer(serializer => 'Storable', secret => $secret, compress => 1)
+	} else {
+		return $self->{__SERIALIZER} ||= new Data::Serializer(serializer => 'Storable', compress => 1)
+	}
+}
+
+sub upgrade_agent {
+	my $self = shift;
+
+	if ( my $version = $self->recv->{version} ) {
+		my (undef, $cname, $cversion) = ($version =~ /^((.*?)\s+)?(\d{2}\D\d{2}\D\d{2})$/);
+		my ($_current) = $cversion;
+		my (undef, $mname, $mversion) = ($self->agent->{minimum} =~ /^((.*?)\s+)?(\d{2}\D\d{2}\D\d{2})$/);
+		my $_min = $mversion;
+		my (undef, $lname, $lversion) = ($self->agent->{latest} =~ /^((.*?)\s+)?(\d{2}\D\d{2}\D\d{2})$/);
+		my $_latest = $lversion;
+		unless ( $_current && $_min && $_latest ) {
+			warn "Agent Versions not defined\n";
+			return 2;
+		}
+		$_current =~ s/\D//g;
+		$_min =~ s/\D//g;
+		$_latest =~ s/\D//g;
+		my $upgrade = {
+			min => $self->agent->{minimum},
+			latest => $self->agent->{latest},
+			current => $version,
+			can_upgrade => $_current < $_latest ? 1 : 0,
+			must_upgrade => $_current < $_min ? 1 : 0,
+			url => 'http://use.velicio.us',
+		};
+		$self->send({upgrade=>$upgrade});
+		if ( $upgrade->{must_upgrade} ) {
+			warn "Agent must upgrade\n";
+			$self->disconnect;
+			return 1;
+		}
+	}
+	return 0;
+}
+
+sub register {
+	my $self = shift;
+
+	return if $self->upgrade_agent;
+	return if $self->registered;
+
+	if ( not exists $self->recv->{registration} ) {
+		warn "Requesting Registration from Client\n";
+		$self->send({registration=>undef});
+	} elsif ( ! ref $self->recv->{registration} ) {
+		warn "Received Registration from Client and Storing in Memory\n";
+		$self->deserialize_registration;
+		# Check that it's in the DB
+		my $ctx = Digest->new("SHA-512");
+		$ctx->add($self->registration->{uuid});
+		unless ( $self->db->resultset('Agent')->search({'me.agent'=>$self->registration->{uuid},sig=>$ctx->hexdigest}, {join=>'device_signatures'}) ) {
+			warn "Received Registration doesn't exist or signature doesn't match\n";
+			$self->unregister;
+		}
+	} else {
+		warn "Generating Registration and Sending to Client\n";
+		$self->serialize_registration;
+		# Add to DB
+		$self->db->resultset('Agent')->create({agent=>$self->registration->{uuid}});
+		$self->db->resultset('Device')->create({device=>$self->registration->{uuid},agent=>$self->registration->{uuid},ip=>'127.0.0.1'});
+		$self->db->resultset('DeviceCinfo')->create({device=>$self->registration->{uuid},cinfo=>'whatever'});
+		my $ctx = Digest->new("SHA-512");
+		$ctx->add($self->registration->{uuid});
+		$self->db->resultset('DeviceSignature')->create({device=>$self->registration->{uuid},sig=>$ctx->hexdigest});
+	}
+}
+sub unregister { my $self = shift; delete $clients->{$self->id}->{__REGISTRATION}; }
+sub registered { my $self = shift; $clients->{$self->id}->{__REGISTRATION} }
+sub registration {
+	my $self = shift;
+	$clients->{$self->id}->{__REGISTRATION} = $_[0] if $_[0] && ref $_[0] eq 'HASH';
+	return $clients->{$self->id}->{__REGISTRATION} ||= {};
+}
+sub serialize_registration {
+	my $self = shift;
+	$self->registration({uuid => create_UUID_as_string(UUID_V4)});
+	warn "  UUID -> ", $self->registration->{uuid}, "\n";
+	$self->send({registration => $self->serializer($self->secret)->serialize($self->registration)});
+}
+sub deserialize_registration {
+	my $self = shift;
+	my $registration = $self->recv->{registration};
+	if ( ! ref $registration ) {
+		$self->registration($self->serializer($self->secret)->deserialize($registration));
+		if ( $self->registration->{uuid} ) {
+			warn "  UUID -> ", $self->registration->{uuid}, "\n";
+		} else {
+			warn "Invalid Registration, possible hacking attempt\n";
+			$self->unregister;
+		}
+	}
+}
+
+sub process {
+	my $self = shift;
+
+	$self->register;
+
+	if ( my $pkg = $self->recv->{pkg} ) {
+		my $run;
+		($pkg, $run) = @$pkg;
+		warn "Package ran: $pkg\n";
+		warn Dumper({ran=>$run});
+		my @dt = localtime; $dt[4]++; $dt[5]+=1900;
+		my $dt = sprintf("%04d-%02d-%02d %02d:%02d:%02d", reverse @dt[0..5]);
+	}
+
+	# Probably don't need this
+	if ( my $res = $self->recv->{res} ) {
+		my $msg = $self->recv->{msg} || '';
+		if ( $res eq 'ok' ) {
+			warn "Client processing successful\n";
+		} elsif ( $res eq 'err' ) {
+			warn "Client processing failed: $msg\n";
+		} else {
+			warn "Unknown response from client\n";
+		}
+	}
+}
+
+package main;
+
 # $ ps axf | perl -MJSON::Any -MMIME::Base64 -e '$/=undef; print JSON::Any->to_json({map{@_=split/=/,$_,2;$_[0]=>$_[1]}@ARGV}), "\n", encode_base64(<STDIN>), "\n"' pg="System Information" pn="ps axf" s="INFO" >> /tmp/a.txt
 # $ env VELITE_COOKIE=${VELITE_COOKIE:-$(mktemp)} curl -b $VELITE_COOKIE -c $VELITE_COOKIE -X POST --data-binary @/tmp/a.txt http://localhost:3003
 
-use constant VERSION => '12.10.30';
-
 use Mojolicious::Lite;  
 use Mojo::JSON;
-use Mojo::IOLoop;
-use Mojo::Util qw(b64_decode b64_encode);
 use Mojolicious::Sessions;
 
 use MIME::Base64;
-use UUID::Tiny;
 use Digest::MD5 qw/md5_hex/;
 use Switch;
 use Data::Dumper;
@@ -25,8 +259,6 @@ use Schema;
 my $basename = basename $0, '.pl';
 plugin Config => {
 	default => {
-		minver => '12.10.30',
-		version => '12.12.08',
 		db => {
 			db => $basename,
 			host => 'localhost',
@@ -35,37 +267,14 @@ plugin Config => {
 		},
 	}
 };
-app->config(hypnotoad => {pid_file=>"$Bin/../.$basename", listen=>[split ',', $ENV{MOJO_LISTEN}], proxy=>$ENV{MOJO_REVERSE_PROXY}});
+app->config(hypnotoad => {pid_file=>"$Bin/../.$basename", listen=>[split ',', $ENV{MOJO_LISTEN}||'http://*,https://*'], proxy=>$ENV{MOJO_REVERSE_PROXY}||1});
 app->sessions->default_expiration(60*60*24*365);
 
 helper db => sub { Schema->connect({dsn=>"DBI:mysql:database=".app->config->{db}->{db}.";host=".app->config->{db}->{host},user=>app->config->{db}->{user},password=>app->config->{db}->{pass}}) };
-helper upgrade => sub {
-	my $self = shift;
-	my $name = shift;
-	my $current = shift;
-	return $self->{__UPGRADE} if $self->{__UPGRADE};
-	#my ($current) = ($self->req->headers->user_agent =~ /^$name\/(\S+)/);
-	my $_current = $current;
-	my $_min = $self->app->config->{minver};
-	my $_latest = $self->app->config->{version};
-	$_current =~ s/\D//g;
-	$_min =~ s/\D//g;
-	$_latest =~ s/\D//g;
-	$self->{__UPGRADE} = {
-		min => $self->app->config->{minver},
-		latest => $self->app->config->{version},
-		current => $current,
-		can_upgrade => $_current < $_latest ? 1 : 0,
-		must_upgrade => $_current < $_min ? 1 : 0,
-		url => 'http://use.velicio.us',
-	};
-	#warn Dumper($self->{__UPGRADE});
-	return $self->{__UPGRADE};
-};
 helper json => sub {
 	my $self = shift;
 	#warn Dumper({body => $self->req->body});
-	unless ( $self->{__JSON} ) {   
+	unless ( $self->{__JSON} ) {
 		my $json = new Mojo::JSON;
 		$self->{__JSON} = $json->decode($self->req->body);
 	}
@@ -131,226 +340,6 @@ any '/login' => sub {
 } => 'login';
 get '/logout' => sub {$_[0]->stash(is_user_authenticated => $_[0]->is_user_authenticated)} => 'logout';
 
-post '/' => (agent => qr/^Velicio/) => sub {
-	my $self = shift;
-	return $self->render_json({upgrade => $self->upgrade('Velicio')}) if $self->upgrade('Velicio')->{must_upgrade};
-	$self->session->{uuid} ||= create_UUID_as_string(UUID_V4);
-	local $/ = undef;
-	my @dt = localtime; $dt[4]++; $dt[5]+=1900;
-	my $dt = sprintf("%04d-%02d-%02d %02d:%02d:%02d", reverse @dt[0..5]);
-	# TODO: Set first run
-	my @data = split /\n\n/, $self->req->body;
-	my $record = Mojo::JSON->decode(shift @data);
-	my $time_offset = time - ($record->{dt}||time); # account for time zones
-	my $this = $self->db->resultset('System')->find_or_create({uuid=>$self->session->{uuid}, create_dt=>$dt});
-	my $prev = $self->db->resultset('System')->find({uuid=>$self->session->{uuid}, dt=>$this->dt});
-	my $sn_change = $prev->sn eq $record->{sn};
-	$this->update({dt=>$dt, sn=>$record->{sn}});
-	my @pg = ();
-	my %pn = ();
-	foreach ( @data ) {
-		my ($tests, $details, $vals) = analyze split /\n/, $_, 2 or next;
-		push @pg, $tests->{pg} unless grep { $_ eq $tests->{pg} } @pg;
-		$pn{$tests->{pg}}++;
-		my $test = $self->db->resultset('Test')->find_or_create({uuid=>$self->session->{uuid}, %{$tests}});
-		$self->db->resultset('History')->create({uuid=>$self->session->{uuid}, %{$tests}, dt=>$dt, %{$vals}});
-		my $ok = $self->db->resultset('History')->search({uuid=>$self->session->{uuid}, %{$tests}, s=>'OK'});
-		my $c = $self->db->resultset('History')->search({uuid=>$self->session->{uuid}, %{$tests}})->count;
-		my $t;
-		if ( $t = $self->db->resultset('History')->search({uuid=>$self->session->{uuid}, %{$tests}, 's'=>{'!='=>$vals->{'s'}}}, {order_by=>'dt desc', rows=>1}) ) {
-			if ( $t = $t->next ) {
-				$t = $t->dt;
-			}
-		}
-		$ok = sprintf("%.2f", $c?$ok/$c*100:0);
-		my ($pg) = grep { $pg[$_] eq $tests->{pg} } 0..$#pg;
-		my $extra = {pg_sort=>$pg, pn_sort=>$pn{$tests->{pg}}, ok=>$ok, t=>$t};
-		$test->update({dt=>$dt, %{$vals}, %{$details}, %{$extra}});
-	}
-	return $self->render_json({
-		at => [],
-		upgrade => $self->upgrade('Velicio')->{can_upgrade} ? $self->upgrade('Velicio') : undef,
-	});
-};
-
-get '/conf/:conf' => {conf => 'remote'} => sub {
-	my $self = shift;
-	$self->session->{uuid} ||= create_UUID_as_string(UUID_V4);
-	my $conf = $self->db->resultset('System')->find({uuid=>$self->session->{uuid}});
-	return $self->render('conf', format=>'text', conf=>defined $conf ? $conf->conf : '');
-};
-
-my $clients = {};
-
-under '/ws';
-websocket '/' => sub {
-	my $self = shift;
-	Mojo::IOLoop->stream($self->tx->connection)->timeout(330);
-	my $id = sprintf "%s", $self->tx;
-	app->log->debug(sprintf 'Client connected: %s', $id);
-	$clients->{$id}->{tx} = $self->tx;
-	$self->on(message => sub {
-		my ($e, $msg) = @_;
-		my $json = new Mojo::JSON;
-		my $req = $json->decode($msg);
-		$req = ref $req eq 'HASH' ? [$req] : undef unless ref $req eq 'ARRAY';
-		foreach ( @$req ) {
-			#warn Dumper($_);
-			if ( exists $_->{version} ) {
-				if ( defined $_->{version} ) {
-					$clients->{$id}->{version} = $_->{version};
-				} else {
-					warn "Client version not defined\n";
-				}
-				delete $_->{version};
-			}
-			next unless defined $clients->{$id}->{version};
-			if ( exists $_->{session} ) {
-				if ( defined $_->{session} ) {
-					warn "Received Session from Client and Storing in Memory\n";
-					my $value = $_->{session};
-					if ($value =~ s/--([^\-]+)$//) {
-						my $sig = $1;
-						my $check = Mojo::Util::hmac_sha1_sum $value, $self->stash->{'mojo.secret'};
-						if ( Mojo::Util::secure_compare $sig, $check ) {
-							warn "Successfully processed Session.\n";
-							$value =~ s/-/=/g;
-							$clients->{$id}->{session} = Mojo::JSON->new->decode(b64_decode $value);
-							warn "  UUID -> $clients->{$id}->{session}->{uuid}\n";
-							#warn Dumper({session=>$clients->{$id}->{session}});
-						} else {
-							warn "Bad signed Session, possible hacking attempt.\n";
-							$self->app->log->debug(qq{Bad signed Session, possible hacking attempt.});
-						}
-					} else {
-						warn "Session not signed.\n";
-						$self->app->log->debug(qq{Session not signed.});
-					}
-				} else {
-					warn "Generating Session and Sending to Client\n";
-					$clients->{$id}->{session}->{uuid} = create_UUID_as_string(UUID_V4);
-					warn "  UUID -> $clients->{$id}->{session}->{uuid}\n";
-					my $value = b64_encode(Mojo::JSON->new->encode($clients->{$id}->{session}), '');
-					$value =~ s/=/-/g;
-					$e->tx->send($json->encode({session=>"$value--".Mojo::Util::hmac_sha1_sum($value, $self->stash->{'mojo.secret'})}));
-				}
-				delete $_->{session};
-			}
-			next unless defined $clients->{$id}->{session};
-			if ( exists $_->{config} ) {
-				if ( defined $_->{config} ) {
-					warn "Received config, but why?\n";
-				} else {
-					warn "Looking up Config and Sending to Client\n";
-					$clients->{$id}->{config} = {};
-					$e->tx->send($json->encode({config=>$clients->{$id}->{config}}));
-				}
-				delete $_->{config};
-			}
-			next unless defined $clients->{$id}->{config};
-
-			next unless keys %$_;
-			warn "Other: ", Dumper($_);
-			if ( exists $_->{sensors} ) {
-				if ( defined $_->{sensors} ) {
-					if ( $self->upgrade('Velicio', $clients->{$id}->{version})->{must_upgrade} ) {
-						$e->tx->send($json->encode({upgrade => $self->upgrade('Velicio', $clients->{$id}->{version})}));
-						next;
-					}
-					if ( $self->upgrade('Velicio', $clients->{$id}->{version})->{can_upgrade} ) {
-						$e->tx->send($json->encode({upgrade => $self->upgrade('Velicio', $clients->{$id}->{version})}));
-					}
-					unless ( $clients->{$id}->{session} ) {
-						$clients->{$id}->{tx}->send($json->encode({session=>undef}));
-						next;
-					}
-					my $session = $clients->{$id}->{session};
-					local $/ = undef;
-					my @dt = localtime; $dt[4]++; $dt[5]+=1900;
-					my $dt = sprintf("%04d-%02d-%02d %02d:%02d:%02d", reverse @dt[0..5]);
-
-	return;
-					my @data = split /\n\n/, $self->req->body;
-					my $record = Mojo::JSON->decode(shift @data);
-					my $time_offset = time - ($record->{dt}||time); # account for time zones
-					my $this = $self->db->resultset('System')->find_or_create({uuid=>$session->{uuid}, create_dt=>$dt});
-					my $prev = $self->db->resultset('System')->find({uuid=>$session->{uuid}, dt=>$this->dt});
-					my $sn_change = $prev->sn eq $record->{sn};
-					$this->update({dt=>$dt, sn=>$record->{sn}});
-					my @pg = ();
-					my %pn = ();
-					foreach ( @data ) {
-						my ($tests, $details, $vals) = analyze split /\n/, $_, 2 or next;
-						push @pg, $tests->{pg} unless grep { $_ eq $tests->{pg} } @pg;
-						$pn{$tests->{pg}}++;
-						my $test = $self->db->resultset('Test')->find_or_create({uuid=>$session->{uuid}, %{$tests}});
-						$self->db->resultset('History')->create({uuid=>$session->{uuid}, %{$tests}, dt=>$dt, %{$vals}});
-						my $ok = $self->db->resultset('History')->search({uuid=>$session->{uuid}, %{$tests}, s=>'OK'});
-						my $c = $self->db->resultset('History')->search({uuid=>$session->{uuid}, %{$tests}})->count;
-						my $t;
-						if ( $t = $self->db->resultset('History')->search({uuid=>$session->{uuid}, %{$tests}, 's'=>{'!='=>$vals->{'s'}}}, {order_by=>'dt desc', rows=>1}) ) {
-							if ( $t = $t->next ) {
-								$t = $t->dt;
-							}
-						}
-						$ok = sprintf("%.2f", $c?$ok/$c*100:0);
-						my ($pg) = grep { $pg[$_] eq $tests->{pg} } 0..$#pg;
-						my $extra = {pg_sort=>$pg, pn_sort=>$pn{$tests->{pg}}, ok=>$ok, t=>$t};
-						$test->update({dt=>$dt, %{$vals}, %{$details}, %{$extra}});
-					}
-				} else {
-					warn "No sensors defined\n";
-				}
-			} elsif ( exists $_->{res} || exists $_->{msg} ) {
-				if ( $_->{res} eq 'ok' ) {
-					warn "Client processing successful\n";
-				} elsif ( $_->{res} eq 'err' ) {
-					warn "Client processing failed: $_->{msg}\n";
-				} else {
-					warn "Unknown response from client\n";
-				}
-			} else {
-				warn "Unknown request from client\n";
-			}
-		}
-	});
-	$self->on(finish => sub {
-		app->log->debug(sprintf 'Client disconnected: %s', $id);
-		delete $clients->{$id};
-	});
-};
-
-post '/cmd/:cmd' => sub {
-	my $self = shift;
-	my $json = new Mojo::JSON;
-	my $req = $self->json;
-	$req = ref $req eq 'HASH' ? [$req] : undef unless ref $req eq 'ARRAY';
-	my $res = {
-		total => 0,
-		ok => 0,
-		err => 0,
-	};
-	foreach ( grep { exists $_->{uuid} } @$req ) {
-		#warn Dumper({velicio_req=>$_});
-		$res->{total} = $#{$_->{uuid}}+1;
-		foreach my $uuid ( @{$_->{uuid}} ) {
-			my ($client) = grep { $clients->{$_}->{session}->{uuid} eq $uuid } keys %$clients;
-			next unless $client;
-			#warn Dumper({client=>$client, uuid=>$uuid});
-			$clients->{$client}->{tx}->send($json->encode($_->{args} ? {$self->param('cmd')=>$_->{args}} : [$self->param('cmd')]));
-			$res->{ok}++;
-		}
-	}
-	$res->{err} = $res->{total} - $res->{ok};
-	$self->render_json($res->{ok}==$res->{total}?{res=>'ok'}:{res=>'err',msg=>"$res->{err} errors"});
-};
-
-post '/test' => sub {
-	my $self = shift;
-	warn Dumper($self->req->body);
-	$self->render_json({res=>'ok'});
-};
-
 under '/v' => sub { shift->is_user_authenticated };
 get '/' => sub {
 	my $self = shift;
@@ -367,6 +356,56 @@ get '/' => sub {
 			);
 		}
 	}
+};
+
+under '/ws';
+websocket '/' => sub {
+	my $self = shift;
+	my $velicious = new Velicious({db=>$self->db, tx=>$self->tx});
+	$velicious->secret(app->secret);
+	$velicious->agent(minimum=>$self->app->config->{agent_minimum}, latest=>$self->app->config->{agent_latest});
+	$self->on(error => sub { warn "Error: $_[1]" });
+	$self->on(message => sub { $velicious->recv($_[1]) });
+	$self->on(finish => sub { $velicious->disconnect("Server disconnected") });
+};
+
+# curl -i --data-ascii '[{"agent":["abe78b76-2200-4a50-801b-522ef9f56e13"]}]' http://dev.velicio.us/ws/eval/version
+post '/eval/:eval' => sub {
+	my $self = shift;
+	my $json = new Mojo::JSON;
+	my $req = $self->json;
+	$req = ref $req eq 'HASH' ? [$req] : undef unless ref $req eq 'ARRAY';
+	my $res = {
+		total => 0,
+		ok => 0,
+		err => 0,
+	};
+	foreach ( grep { exists $_->{devices} && ref $_->{devices} eq 'ARRAY' } @$req ) {
+		warn Dumper({velicio_req=>$_});
+		$res->{total} = $#{$_->{devices}}+1;
+		foreach my $device ( @{$_->{devices}} ) {
+			warn "Looking up device: $device\n";
+			if ( $device = $self->db->resultset('Device')->find($device) ) {
+				if ( my $v = new Velicious(''.$device->agent) ) {
+					warn "Agent is ", $device->agent, " and connected (", $v->id, "); sending command ", $self->param('eval'), "\n";
+					$v->send({
+						cinfo=>$device->cinfo,
+						config=>undef,
+						code=>q[package Velicio::Sensors::VelicioVersion; sub run { my ($cinfo) = @_; return {details=>"Velicio Version: 23"} } ],
+						pkg=>'Velicio::Sensors::VelicioVersion'
+					});
+					# Manage packages, execute arbitary code, reboot, restart agent, disconnect agent, ping, upgrade agent
+					$res->{ok}++;
+				} else {
+					warn "Agent is ", $device->agent, " but is not connected\n"
+				}
+			} else {
+				warn "Device record not found\n";
+			}
+		}
+	}
+	$res->{err} = $res->{total} - $res->{ok};
+	$self->render_json({res=>($res->{ok}==$res->{total}?'ok':'err'),msg=>"$res->{err} errors of $res->{total}"});
 };
 
 app->start;

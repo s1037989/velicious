@@ -74,9 +74,9 @@ __PACKAGE__->table("tests");
 
 =head2 t
 
-  data_type: 'varchar'
+  data_type: 'datetime'
+  datetime_undef_if_invalid: 1
   is_nullable: 1
-  size: 16
 
 =head2 n
 
@@ -120,7 +120,11 @@ __PACKAGE__->add_columns(
   "ok",
   { data_type => "varchar", is_nullable => 1, size => 6 },
   "t",
-  { data_type => "varchar", is_nullable => 1, size => 16 },
+  {
+    data_type => "datetime",
+    datetime_undef_if_invalid => 1,
+    is_nullable => 1,
+  },
   "n",
   { data_type => "varchar", is_nullable => 1, size => 32 },
   "y",
@@ -131,8 +135,8 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("id");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07010 @ 2012-12-10 22:00:42
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:bRHWCZqNyK0ZL99p5phl2A
+# Created by DBIx::Class::Schema::Loader v0.07010 @ 2012-12-14 05:02:41
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:gfV3QjkDFrdxJCyHIqHf4g
 
 __PACKAGE__->load_components(qw{Helper::Row::ToJSON});
 __PACKAGE__->belongs_to(system => 'Schema::Result::System', 'uuid');
