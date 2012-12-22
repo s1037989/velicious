@@ -1,248 +1,8 @@
-package Velicious;
-
-our $VERSION = '12.12.18';
-
-use Scalar::Util 'blessed';
-use Digest;
-use Data::Serializer;
-use Mojo::IOLoop;
-use UUID::Tiny;
-
-use Data::Dumper;
-
-my $clients = {};
-sub clients {
-	if ( $_[0] ) {
-		grep { $clients->{$_}->{__REGISTRATION} && ref $clients->{$_}->{__REGISTRATION} eq 'HASH' && $clients->{$_}->{__REGISTRATION}->{agent} eq $_[0] } keys %$clients;
-	} else {
-		keys %$clients;
-	}
-}
-sub client { my $id = ref $_[0] eq __PACKAGE__ ? $_[1] : $_[0]; bless {id=>$id}, __PACKAGE__ }
-
-sub _unbless {
-	my $value = shift;
-
-	if (my $ref = ref $value) {
-		return [map { _unbless($_) } @$value] if $ref eq 'ARRAY';
-		return {map { $_ => _unbless($value->{$_}) } keys %$value} if $ref eq 'HASH';
-		return $value if $ref eq 'SCALAR';
-		return ''.$value if blessed $value;
-		return undef;
-	}
-	return $value;
-}
-
-sub new {
-	my $class = shift;
-	if ( ref $_[0] ) { # New agent connection
-		Mojo::IOLoop->stream($_[0]->{tx}->connection)->timeout(330);
-		my $id = sprintf "%s", $_[0]->{tx};
-		warn "Client connected: $id\n";
-		$clients->{$id} = $_[0];
-		bless {id=>$id}, $class;
-	} else { # Find existing agent connection
-		my $id = shift;
-		($id) = grep { $clients->{$_}->{__REGISTRATION} && $clients->{$_}->{__REGISTRATION}->{agent} eq $id } clients();
-		bless {id=>$id}, $class;
-	}
-}
-
-sub id { shift->{id} }
-sub db { $clients->{shift->id}->{db} }
-
-sub secret {
-	my $self = shift;
-	$self->{__SECRET} = $_[0] if $_[0];
-	warn "Your secret passphrase needs to be changed!!!\n" unless $self->{__SECRET};
-	return $self->{__SECRET} || ref $self;
-}
-
-sub agent {
-	my $self = shift;
-	if ( $_[0] ) {
-		$self->{__AGENT} = ref $_[0] eq 'HASH' ? $_[0] : {@_};
-	}
-	return $self->{__AGENT} || {};
-}
-
-sub tx {
-	my $self = shift;
-	if ( my $tx = shift ) {
-		warn "Storing tx\n";
-		$clients->{$self->id}->{tx} = $tx;
-	}
-	return $clients->{$self->id}->{tx}->can('send') ? $clients->{$self->id}->{tx} : undef;
-}
-
-sub send {
-	my $self = shift;
-	my $msg = shift;
-	if ( $msg && ref $msg eq 'HASH' ) {
-		my $_msg = $msg;
-		$msg = $self->serializer->serialize(_unbless($msg));
-		#warn Dumper({send => [$_msg, $msg]});
-		$self->tx->send($msg) if ! ref $msg;
-	}
-}
- 
-sub recv {
-	my $self = shift;
-	my $msg = shift;
-	if ( $msg && ! ref $msg ) {
-		my $_msg = $msg;
-		$msg = $self->serializer->deserialize($msg);
-		#warn Dumper({recv => [$_msg, $msg]});
-		$self->{__RECV} = $msg and $self->process if ref $msg eq 'HASH';
-	}
-	return $self->{__RECV};
-}
- 
-sub disconnect {
-	my $self = shift;
-	$clients->{$self->id}->{tx}->finish;
-	delete $clients->{$self->id};
-}
-sub disconnected { $clients->{$self->id} ? 0 : 1 }
-
-sub serializer {
-	my $self = shift;
-	my $secret = shift;
-	if ( $secret ) {
-		return $self->{"__SERIALIZER_$secret"} ||= new Data::Serializer(serializer => 'Storable', secret => $secret, compress => 1)
-	} else {
-		return $self->{__SERIALIZER} ||= new Data::Serializer(serializer => 'Storable', compress => 1)
-	}
-}
-
-sub upgrade_agent {
-	my $self = shift;
-
-	if ( my $version = $self->recv->{version} ) {
-		my (undef, $cname, $cversion) = ($version =~ /^((.*?)\s+)?(\d{2}\D\d{2}\D\d{2})$/);
-		my ($_current) = $cversion;
-		my (undef, $mname, $mversion) = ($self->agent->{minimum} =~ /^((.*?)\s+)?(\d{2}\D\d{2}\D\d{2})$/);
-		my $_min = $mversion;
-		my (undef, $lname, $lversion) = ($self->agent->{latest} =~ /^((.*?)\s+)?(\d{2}\D\d{2}\D\d{2})$/);
-		my $_latest = $lversion;
-		unless ( $_current && $_min && $_latest ) {
-			warn "Agent Versions not defined\n";
-			return 2;
-		}
-		$_current =~ s/\D//g;
-		$_min =~ s/\D//g;
-		$_latest =~ s/\D//g;
-		my $upgrade = {
-			min => $self->agent->{minimum},
-			latest => $self->agent->{latest},
-			current => $version,
-			can_upgrade => $_current < $_latest ? 1 : 0,
-			must_upgrade => $_current < $_min ? 1 : 0,
-			url => 'http://use.velicio.us',
-		};
-		$self->send({upgrade=>$upgrade});
-		if ( $upgrade->{must_upgrade} ) {
-			warn "Agent must upgrade\n";
-			$self->disconnect;
-			return 1;
-		}
-	}
-	return 0;
-}
-
-sub register {
-	my $self = shift;
-
-	return if $self->upgrade_agent;
-	return if $self->registered;
-
-	if ( not exists $self->recv->{registration} ) {
-		warn "Requesting Registration from Client\n";
-		$self->send({registration=>undef});
-	} elsif ( ! ref $self->recv->{registration} ) {
-		warn "Received Registration from Client and Storing in Memory\n";
-		$self->deserialize_registration;
-		# Check that it's in the DB
-		my $ctx = Digest->new("SHA-512");
-		$ctx->add($self->registration->{uuid});
-		unless ( $self->db->resultset('Agent')->search({'me.agent'=>$self->registration->{uuid},sig=>$ctx->hexdigest}, {join=>'device_signatures'}) ) {
-			warn "Received Registration doesn't exist or signature doesn't match\n";
-			$self->unregister;
-		}
-	} else {
-		warn "Generating Registration and Sending to Client\n";
-		$self->serialize_registration;
-		# Add to DB
-		$self->db->resultset('Agent')->create({agent=>$self->registration->{uuid}});
-		$self->db->resultset('Device')->create({device=>$self->registration->{uuid},agent=>$self->registration->{uuid},ip=>'127.0.0.1'});
-		$self->db->resultset('DeviceCinfo')->create({device=>$self->registration->{uuid},cinfo=>'whatever'});
-		my $ctx = Digest->new("SHA-512");
-		$ctx->add($self->registration->{uuid});
-		$self->db->resultset('DeviceSignature')->create({device=>$self->registration->{uuid},sig=>$ctx->hexdigest});
-	}
-}
-sub unregister { my $self = shift; delete $clients->{$self->id}->{__REGISTRATION}; }
-sub registered { my $self = shift; $clients->{$self->id}->{__REGISTRATION} }
-sub registration {
-	my $self = shift;
-	$clients->{$self->id}->{__REGISTRATION} = $_[0] if $_[0] && ref $_[0] eq 'HASH';
-	return $clients->{$self->id}->{__REGISTRATION} ||= {};
-}
-sub serialize_registration {
-	my $self = shift;
-	$self->registration({uuid => create_UUID_as_string(UUID_V4)});
-	warn "  UUID -> ", $self->registration->{uuid}, "\n";
-	$self->send({registration => $self->serializer($self->secret)->serialize($self->registration)});
-}
-sub deserialize_registration {
-	my $self = shift;
-	my $registration = $self->recv->{registration};
-	if ( ! ref $registration ) {
-		$self->registration($self->serializer($self->secret)->deserialize($registration));
-		if ( $self->registration->{uuid} ) {
-			warn "  UUID -> ", $self->registration->{uuid}, "\n";
-		} else {
-			warn "Invalid Registration, possible hacking attempt\n";
-			$self->unregister;
-		}
-	}
-}
-
-sub process {
-	my $self = shift;
-
-	$self->register;
-
-	if ( my $pkg = $self->recv->{pkg} ) {
-		my $run;
-		($pkg, $run) = @$pkg;
-		warn "Package ran: $pkg\n";
-		warn Dumper({ran=>$run});
-		my @dt = localtime; $dt[4]++; $dt[5]+=1900;
-		my $dt = sprintf("%04d-%02d-%02d %02d:%02d:%02d", reverse @dt[0..5]);
-	}
-
-	# Probably don't need this
-	if ( my $res = $self->recv->{res} ) {
-		my $msg = $self->recv->{msg} || '';
-		if ( $res eq 'ok' ) {
-			warn "Client processing successful\n";
-		} elsif ( $res eq 'err' ) {
-			warn "Client processing failed: $msg\n";
-		} else {
-			warn "Unknown response from client\n";
-		}
-	}
-}
-
-package main;
-
-# $ ps axf | perl -MJSON::Any -MMIME::Base64 -e '$/=undef; print JSON::Any->to_json({map{@_=split/=/,$_,2;$_[0]=>$_[1]}@ARGV}), "\n", encode_base64(<STDIN>), "\n"' pg="System Information" pn="ps axf" s="INFO" >> /tmp/a.txt
-# $ env VELITE_COOKIE=${VELITE_COOKIE:-$(mktemp)} curl -b $VELITE_COOKIE -c $VELITE_COOKIE -X POST --data-binary @/tmp/a.txt http://localhost:3003
-
 use Mojolicious::Lite;  
 use Mojo::JSON;
 use Mojolicious::Sessions;
+
+use Velicious;
 
 use MIME::Base64;
 use Digest::MD5 qw/md5_hex/;
@@ -360,6 +120,8 @@ get '/' => sub {
 
 under '/ws';
 websocket '/' => sub {
+	# This sub does not generate commands.
+	# Commands come either from POSTs or from the agent itself -- that's IT!
 	my $self = shift;
 	my $velicious = new Velicious({db=>$self->db, tx=>$self->tx});
 	$velicious->secret(app->secret);
@@ -388,11 +150,9 @@ post '/eval/:eval' => sub {
 			if ( $device = $self->db->resultset('Device')->find($device) ) {
 				if ( my $v = new Velicious(''.$device->agent) ) {
 					warn "Agent is ", $device->agent, " and connected (", $v->id, "); sending command ", $self->param('eval'), "\n";
-					$v->send({
+					$v->queue({
 						cinfo=>$device->cinfo,
 						config=>undef,
-						code=>q[package Velicio::Sensors::VelicioVersion; sub run { my ($cinfo) = @_; return {details=>"Velicio Version: 23"} } ],
-						pkg=>'Velicio::Sensors::VelicioVersion'
 					});
 					# Manage packages, execute arbitary code, reboot, restart agent, disconnect agent, ping, upgrade agent
 					$res->{ok}++;

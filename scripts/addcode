@@ -1,0 +1,399 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use DBI;
+
+#mysql [velite]> describe code;
+#+--------------+--------------+------+-----+---------------------+-----------------------------+
+#| Field        | Type         | Null | Key | Default             | Extra                       |
+#+--------------+--------------+------+-----+---------------------+-----------------------------+
+#| agent        | char(36)     | NO   | PRI |                     |                             |
+#| pkg          | char(255)    | NO   | PRI |                     |                             |
+#| base         | varchar(255) | YES  |     | NULL                |                             |
+#| ctime        | datetime     | YES  |     | NULL                |                             |
+#| mtime        | timestamp    | NO   |     | 0000-00-00 00:00:00 | on update CURRENT_TIMESTAMP |
+#| code         | text         | YES  |     | NULL                |                             |
+#+--------------+--------------+------+-----+---------------------+-----------------------------+
+#8 rows in set (0.00 sec)
+#
+#mysql [velite]> describe base_code;
+#+---------+-------------+------+-----+---------------------+-----------------------------+
+#| Field   | Type        | Null | Key | Default             | Extra                       |
+#+---------+-------------+------+-----+---------------------+-----------------------------+
+#| pkg     | char(255)   | NO   | PRI |                     |                             |
+#| version | varchar(12) | NO   | PRI |                     |                             |
+#| ctime   | datetime    | YES  |     | NULL                |                             |
+#| mtime   | timestamp   | NO   |     | 0000-00-00 00:00:00 | on update CURRENT_TIMESTAMP |
+#| code    | text        | YES  |     | NULL                |                             |
+#+---------+-------------+------+-----+---------------------+-----------------------------+
+#5 rows in set (0.00 sec)
+
+my $dbh = DBI->connect('DBI:mysql:database=velite;host=localhost', 'velite', 'velite');
+my $dbase = $dbh->prepare("delete from base_code where pkg=? and version=?");
+my $base = $dbh->prepare("insert into base_code values (?, ?, now(), null, ?)");
+my $dcode = $dbh->prepare("delete from code where agent='' and pkg=?");
+my $code = $dbh->prepare("insert into code values ('', ?, '', ?, '', now(), null, ?)");
+
+my $package;
+my $version;
+my $use_base_package;
+my $use_base_version;
+my $base_package;
+my $base_version;
+my $type = '';
+my @code = ();
+while ( <DATA> ) {
+#print;
+	if ( /^package / ) {
+		if ( $type eq 'base' && $base_package && @code ) {
+			print "Adding base: $base_package $base_version\n";
+			$dbase->execute($base_package, $base_version);
+			$base->execute($base_package, $base_version, join("\n",@code));
+		} elsif ( $type eq 'code' && $package && @code ) {
+			print "Adding code: $package; using $use_base_package\n";
+			$dcode->execute($package);
+			$code->execute($package, $use_base_package, join("\n",@code));
+		}
+		if ( /^package Velicio::(\w+)( ([\d.]+))?;$/ ) { # Set version of package
+			$type = 'base';
+			@code = ();
+			$base_package = $1;
+			$base_version = $3 || '0.01';
+			print "Starting base generation for $base_package $base_version\n";
+		} elsif ( /^package .*?::(\w+);$/ ) {
+			$type = 'code';
+			@code = ();
+			$package = $1;
+			print "Starting code generation for $package\n";
+		}
+	} elsif ( /^use base 'Velicio::(\w+)';$/ ) { # Require this minimum version of package
+		$use_base_package = $1;
+		print "Requiring base $use_base_package\n";
+	} else {
+		chomp;
+		push @code, $_;
+	}
+}
+if ( $type eq 'base' && $base_package && @code ) {
+	print "Adding base: $base_package $base_version\n";
+	$dbase->execute($base_package, $base_version);
+	$base->execute($base_package, $base_version, join("\n",@code));
+} elsif ( $type eq 'code' && $package && @code ) {
+	print "Adding code: $package; using $use_base_package\n";
+	$dcode->execute($package);
+	$code->execute($package, $use_base_package, join("\n",@code));
+}
+
+__DATA__
+package Velicio::Hydrogen 0.01;
+BEGIN {
+        use constant {
+                UNDEF => 1000,
+                ALERT => 500, 
+                WARN => 400,  
+                OK => 300,    
+                QXFAIL => 120,
+                NOINFO => 110,
+                INFO => 100,  
+                DEFAULT_LABEL => 'Default Label',
+        };
+        sub Qx { my $Qx = shift; my @Qx = split ' ', $Qx, 2; @Qx = qx/which $Qx[0]/ ? map { chomp; $_ } qx($Qx) : undef; @Qx }
+        sub qxfail {{status=>QXFAIL}}
+        use Exporter 'import';
+        our @ISA = qw(Exporter);
+        our @EXPORT = qw(UNDEF ALERT WARN OK QXFAIL NOINFO INFO DEFAULT_LABEL Qx qxfail);
+}
+
+use Digest;
+use Data::Serializer;
+
+#use Data::Dumper;
+
+sub run {
+	my $self = shift;
+	my $run = shift;
+	return () unless ref $run eq 'HASH';
+
+	my @report = ();
+	my $defaults = $self->defaults;
+	$defaults = {} unless ref $defaults eq 'HASH';
+	foreach my $subscriber ( keys %{$run} ) {
+		next unless ref $run->{$subscriber} eq 'HASH';
+
+		$run->{$subscriber}->{$_} ||= $defaults->{$_} foreach keys %$defaults;
+		$run->{$subscriber}->{user} = $subscriber;
+		$run->{$subscriber}->{label} ||= DEFAULT_LABEL || 'Default Label';
+		#warn Dumper($run->{$subscriber});
+
+		my $results = $self->_results($run->{$subscriber}->{args});
+		$results = {} unless ref $results eq 'HASH';
+
+		my $report = $self->report($run->{$subscriber}, $results);
+		$report = {} unless ref $report eq 'HASH';
+
+		unless ( exists $report->{status} ) {
+			$report->{status} = UNDEF;
+			$report->{reason} = "Package $self report method missing status";
+		}
+		unless ( grep { $report->{status} == $_ } UNDEF, ALERT, WARN, OK, QXFAIL, NOINFO, INFO ) {
+			$report->{status} = UNDEF;
+			$report->{reason} = "Package $self returned unknown status";
+		}
+		$report->{$_} = $run->{$subscriber}->{$_} foreach grep $_ ne "args", keys %{$run->{$subscriber}};
+		$report->{package} = "$self";
+		push @report, $report;
+	}
+	return @report;
+}
+sub defaults {{}}
+sub results {{}}
+sub report {
+	my %report = ();
+	$report{$_} = $_[2]->{$_} foreach grep { $_[2]->{$_} } qw/status reason summary details/;
+	$report{reason} = "Unable process system call" if !$report{reason} && $report{status} == QXFAIL;
+	return {%report};
+}
+
+sub _results {
+	my $self = shift;
+	my $args = shift;
+	my @args = ref $args eq 'ARRAY' ? @$args :();
+	my $ds = new Data::Serializer;
+	my $digest = new Digest('MD5');
+	$digest->add($ds->serialize(["$self",@args]));
+	$digest = $digest->hexdigest;
+	#warn Dumper($self.$digest);
+	return $self->{__RESULTS}->{$digest} if exists $self->{__RESULTS}->{$digest};
+	warn "Calculating Results! $self\n";
+	return $self->{__RESULTS}->{$digest} = $self->results(@_);
+}
+
+package Velicio::Action::Touch;
+use base 'Velicio::Hydrogen';
+
+sub touch {
+	my %a = map{$_=>1}@_;
+	open A, ">$_" and do { delete $a{$_}; close A; } foreach @_;
+	return keys %a;
+}
+
+sub results {
+	my $a = 0;
+	my @failed = touch(@_);
+
+	return {
+		percent => int(($#_+1-($#failed+1))/($#_+1)*100),
+		failed => [@failed],
+	}
+}
+
+sub report {
+	my $self = shift;
+	my $run = shift;
+	my $results = shift;
+	return {
+		status => $results->{percent} == 100 ? OK : ALERT,
+		value => $results->{percent},
+		details => "$percent% of files were touched"
+	}
+}
+
+package Velicio::Status::DaysUp;
+use base 'Velicio::Hydrogen';
+
+# [o] Used to set Sensor / Status threshold defaults
+sub defaults {
+	return {
+		warn  => 10,
+		alert =>  3,
+	}
+}
+
+# [o] Used to cache calculated results
+sub results {
+	my $self = shift;
+	my $args = shift;
+	my $daysup = 0;
+	open A, '/proc/uptime' and do { $daysup = <A>; close A; };
+	return {
+		daysup => int(((split / /, $daysup)[0])/60/60/24),
+	}
+}
+
+# [o] Returns a hashref of report values, most needed is status, everything else is auto-filled
+#     Results is cached, this is not.  That means that for items that generate warnings, calculate
+#     the numbers in results (cache) and determine warning level here.
+sub report {
+	my $self = shift;
+	my $run = shift;
+	my $results = shift;
+	return {
+		$results->{daysup} <= $run->{alert} ? (
+			status=>ALERT,
+			reason=>"Alert: Days up ($results->{daysup}) <= Alert Value ($run->{alert})"
+		) : $results->{daysup} <= $parameters->{warn} ? (
+			status=>WARN,
+			reason=>"Warn: Days up ($results->{daysup}) <= Warn Value ($run->{warn})"
+		) : (
+			status=>OK,
+			reason=>"OK: Days up ($results->{daysup}) > Warn Value ($run->{warn})"
+		),
+		value => $results->{daysup},
+		details => "Uptime (in days): $results->{daysup} A:$run->{alert} W:$run->{warn}",
+	}
+}
+
+package Velicio::Status::CheckIP;
+use base 'Velicio::Hydrogen';
+
+use Mojo::UserAgent;
+
+sub defaults {{label => 'System Information'}}
+
+sub results {
+	{status=>INFO, details => Mojo::UserAgent->new->request_timeout(2)->get('checkip.cog-ent.com' => {DNT => 1})->res->body}
+}
+
+package Velicio::Status::Timestamp;
+use base 'Velicio::Hydrogen';
+
+sub results {
+	{status=>INFO, details=>scalar localtime}
+}
+
+package Velicio::Status::VelicioVersion;
+use base 'Velicio::Hydrogen';
+
+sub defaults {{label => 'System Information'}}
+
+sub results {
+	{status=>INFO, details=>"Velicio Version $::VERSION"}
+}
+
+package Velicio::Status::ProcessTree;
+use base 'Velicio::Hydrogen';
+
+sub defaults {{label => 'System Information'}}
+
+sub results {
+	@_ = Qx('pstree -capuA') or return qxfail;
+	{status=>INFO, summary=>'Processes (pstree -capuA)', details=>@_?join "\n", @_:"No Processes Found?!  What about me?!"}
+}
+
+package Velicio::Status::SystemInformation;
+use base 'Velicio::Hydrogen';
+
+sub defaults {{label => 'System Information'}}
+
+sub results {
+	@_ = Qx('uname -a') or return qxfail;
+	{status=>INFO, details=>$_[0]}
+}
+
+package Velicio::Status::UpTime;
+use base 'Velicio::Hydrogen';
+
+sub defaults {{label => 'System Information'}}
+
+sub results {
+	@_ = Qx('uptime') or return qxfail;
+	{status=>INFO, details=>$_[0]}
+}
+
+package Velicio::Status::IsVirtual;
+use base 'Velicio::Hydrogen';
+
+sub defaults {{label => 'System Information'}}
+
+sub results {
+	@_ = grep { $_ eq "Product Name: VMware" } Qx('dmidecode') or return qxfail;
+	{status=>INFO, details=>join("\n", @_) || 'Not Virtual or cannot determine'}
+}
+
+package Velicio::Status::MemoryFree;
+use base 'Velicio::Hydrogen';
+
+sub defaults {{label => 'System Information'}}
+
+sub results {
+	@_ = map { map { "${_}M" } grep { /^\d+$/ } split /\s+/ } grep { /^Mem:/ } Qx('free -m') or return qxfail;
+	{status=>INFO, summary=>'Memory Usage (free)', details=>$#_>=2?"Total: $_[0] | Used: $_[1] | Free: $_[2]":"Parse Error"}
+}
+
+package Velicio::Status::LastLogin;
+use base 'Velicio::Hydrogen';
+
+sub defaults {{label => 'System Information'}}
+
+sub results {
+	@_ = Qx('last -1') or return qxfail;
+	{status=>INFO, details=>$_[0]}
+}
+
+package Velicio::Status::ListeningPorts;
+use base 'Velicio::Hydrogen';
+
+sub defaults {{label => 'System Information'}}
+
+sub results {
+	@_ = Qx('netstat -tulpen') or return qxfail;
+	{status=>INFO, summary=>'Listening Ports (netstat -tulpen)', details=>$#_?join "\n", @_[1..$#_]:"No Listening Ports Detected"}
+}
+
+package Velicio::Status::Routes;
+use base 'Velicio::Hydrogen';
+
+sub defaults {{label => 'System Information'}}
+
+sub results {
+	@_ = Qx('route -n') or return qxfail;
+	{status=>INFO, summary=>'Current Routes (route -n)', details=>$#_?join "\n", @_[1..$#_]:"No Routes Detected?!  How did this get delivered?!"}
+}
+
+package Velicio::Status::CurrentLogin;
+use base 'Velicio::Hydrogen';
+
+sub defaults {{label => 'System Information'}}
+
+sub results {
+	@_ = Qx('w') or return qxfail;
+	{status=>INFO, summary=>'Logged in Users (w)', details=>$_[0]}
+}
+
+package Velicio::Status::DiskUsage;
+use base 'Velicio::Hydrogen';
+
+sub defaults {{label => 'System Information'}}
+
+sub results {
+	@_ = Qx('df -hP') or return qxfail;
+	my $header = $_[0];
+	@_ = grep { m{^/} } @_;
+	{status=>INFO, summary=>'Disk Usage (df -hP)', details=>"$header\n".join("\n",@_)}
+}
+
+package Velicio::Status::NetworkInterfaces;
+use base 'Velicio::Hydrogen';
+
+sub defaults {{label => 'System Information'}}
+
+sub hostname { ((Qx(hostname))[0]) }
+sub domainname { ((Qx(hostname -d))[0]) }
+sub defaultroute { join "\n", grep { $_ } map { @_=split /\s+/; $_[1] ne '0.0.0.0' ? "$_[1] ($_[-1])" : undef } grep { /^0\.0\.0\.0/ } Qx('route -n') }
+sub nameservers { join ' ', map { ((split /\s+/)[-1]) } Qx('grep nameserver /etc/resolv.conf') }
+sub _ifconfig { join "\n", Qx('/sbin/ifconfig') }
+sub ifconfig {
+	@_ = ();
+	push @_, 'Hostname: '.hostname;
+	push @_, 'Domainname: '.domainname;
+	push @_, 'Default route: '.defaultroute;
+	push @_, 'DNS Servers: '.nameservers;
+	push @_, '';
+	push @_, _ifconfig;
+	return @_;
+}
+sub results {
+	{status=>INFO, summary=>'NICs (ifconfig)', details=>join("\n", ifconfig)}
+}
