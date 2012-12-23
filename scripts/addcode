@@ -44,6 +44,7 @@ my $base_package;
 my $base_version;
 my $type = '';
 my @code = ();
+my $version = "v".join(".", substr((((localtime)[5])+1900),2,2), (((localtime)[4])+1), (((localtime)[3])));
 while ( <DATA> ) {
 #print;
 	if ( /^package / ) {
@@ -60,7 +61,7 @@ while ( <DATA> ) {
 			$type = 'base';
 			@code = ();
 			$base_package = $1;
-			$base_version = $3 || '0.01';
+			$base_version = $3 || $version;
 			print "Starting base generation for $base_package $base_version\n";
 		} elsif ( /^package .*?::(\w+);$/ ) {
 			$type = 'code';
@@ -87,7 +88,7 @@ if ( $type eq 'base' && $base_package && @code ) {
 }
 
 __DATA__
-package Velicio::Hydrogen 0.01;
+package Velicio::Hydrogen 12.12.22;
 BEGIN {
         use constant {
                 UNDEF => 1000,

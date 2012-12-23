@@ -1,7 +1,90 @@
-package Velicious;
+# The life of an agent:
+#   1) Send/Request Registration
+#      A) Before registration server checks version (protocol) compatibility
+#      B) Server commences Registration
+#   2) Receive Messages
+#      A) registration -> this should never happen, but if a server doesn't
+#         know who an agent it is, it'll ask before allowing anything else
+#      B) upgrade -> if agent must_upgrade, no further processing will happen
+#         1) if enabled, actually do upgrade and reload (see how CPAN does it)
+#      C) code -> agent takes this code and shove it into its memory
+#      D) run -> include a list of run statements and configurations for each
+#         1) Configs include frequency.  If once, just do it; if recurring,
+#            agent puts its code in Mojo::IOLoop->recurring
+#   3) Send Response
+#      A) Respond to commands, completing the conversation
+#      B) Send run results in a structured manner so that the server can process
+#         1) Run results can be:
+#            a) One-time
+#            b) Recurring
 
-our $VERSION = '12.12.18';
+# The life of a server:
+#   1) Do nothing.  The server does nothing on its own.
+#   2) Receive Messages.  From:
+#      A) POSTs.  POSTs can send:
+#         1) code -> agent takes this code and shove it into its memory
+#            a) this code might be pre-saved, available in the DB, or
+#            b) it might be supplied code -- type whatever you want! Just remember:
+#               1) It will be packaged and it must have a run method available, also
+#               2) it makes no sense to consider "protecting" the agent. The fact that
+#                  it's SSL and the registration process already provide that protection.
+#                  The server is essentially root -- the agent has already agreed to allow
+#                  the server to do whatever it wants.
+#         2) run -> include a list of run statements and configurations for each
+#            a) Configs include frequency.  If once, just do it; if recurring,
+#               agent puts its code in Mojo::IOLoop->recurring
+#      3) Agents.  Agent can send:
+#         [See life of an agent (3)]
 
+# Code can be: literally anything
+# Run commands can be: well, literally anything as well, but to actually succeed
+#   there must be corresponding pakcages already loaded.
+
+# All-in-all, the point of this Velicio.us suite is that the agent does things (run)
+#   and tells the server about it.  The server processes what the agent says.
+
+# The "protocol header", if you will, deals will registration and upgrade only.  From the
+#   server's perspective, that's all it cares about.  If the agent passes the registration
+#   phase and the version check and then just chills out as a wallflower, that's fine by
+#   the server.  MAYBE implement an agent timeout.  Stop wasting my resources!  If you can't
+#   figure out what you wanna talk about, go away.  Obviously this would need to flag an alert.
+
+# What we can take away from this is that the agent needs to lead this dance.  A POST
+#   can come along like a DJ and change the music, but the agent keeps dancing.
+
+#	Velicio::Base sub run {
+	# In:	{
+	#		[r]user => {
+	#			[o]label => '',
+	#			[o]warn => '',
+	#			[o]alert => '',
+	#			[o]ok => '',  <-- proly no need
+	#			[o]info => '',  <-- proly no need
+	#			[o]args => [],  <-- If args, calculates results each time; if not, calculates once
+	#		},
+	#	}
+	#
+	# Out:	[
+	#		{
+	#			[r]user,
+	#			[r]label,
+	#			[r]status,  <-- UNDEF ALERT WARN OK QXFAIL NOINFO INFO
+	#			[o]reason,
+	#			[o]details,
+	#			[o]summary,
+	#			[r]package,
+	#			[o]value,
+	#			[o]extra,
+	#		},
+	#	]
+	# Supported keywords: user, label, status, reason, details, summary, package, value, extra
+	# Anything else is ignored, so put what you want in extra
+# All that above is the Supporting code, technically it's not necessary at all.  technically you just need a run method in your package
+# But, the supporting code will get delivered whether the agent likes it or not, the packages don't have to make use.
+
+package Velicious 12.12.22;
+
+use version 0.77;
 use Scalar::Util 'blessed';
 use Digest;
 use Data::Serializer;
@@ -224,95 +307,31 @@ sub deserialize_registration {
 	}
 }
 
-# The life of an agent:
-#   1) Send/Request Registration
-#      A) Before registration server checks version (protocol) compatibility
-#      B) Server commences Registration
-#   2) Receive Messages
-#      A) registration -> this should never happen, but if a server doesn't
-#         know who an agent it is, it'll ask before allowing anything else
-#      B) upgrade -> if agent must_upgrade, no further processing will happen
-#         1) if enabled, actually do upgrade and reload (see how CPAN does it)
-#      C) code -> agent takes this code and shove it into its memory
-#      D) run -> include a list of run statements and configurations for each
-#         1) Configs include frequency.  If once, just do it; if recurring,
-#            agent puts its code in Mojo::IOLoop->recurring
-#   3) Send Response
-#      A) Respond to commands, completing the conversation
-#      B) Send run results in a structured manner so that the server can process
-#         1) Run results can be:
-#            a) One-time
-#            b) Recurring
-
-# The life of a server:
-#   1) Do nothing.  The server does nothing on its own.
-#   2) Receive Messages.  From:
-#      A) POSTs.  POSTs can send:
-#         1) code -> agent takes this code and shove it into its memory
-#            a) this code might be pre-saved, available in the DB, or
-#            b) it might be supplied code -- type whatever you want! Just remember:
-#               1) It will be packaged and it must have a run method available, also
-#               2) it makes no sense to consider "protecting" the agent. The fact that
-#                  it's SSL and the registration process already provide that protection.
-#                  The server is essentially root -- the agent has already agreed to allow
-#                  the server to do whatever it wants.
-#         2) run -> include a list of run statements and configurations for each
-#            a) Configs include frequency.  If once, just do it; if recurring,
-#               agent puts its code in Mojo::IOLoop->recurring
-#      3) Agents.  Agent can send:
-#         [See life of an agent (3)]
-
-# Code can be: literally anything
-# Run commands can be: well, literally anything as well, but to actually succeed
-#   there must be corresponding pakcages already loaded.
-
-# All-in-all, the point of this Velicio.us suite is that the agent does things (run)
-#   and tells the server about it.  The server processes what the agent says.
-
-# The "protocol header", if you will, deals will registration and upgrade only.  From the
-#   server's perspective, that's all it cares about.  If the agent passes the registration
-#   phase and the version check and then just chills out as a wallflower, that's fine by
-#   the server.  MAYBE implement an agent timeout.  Stop wasting my resources!  If you can't
-#   figure out what you wanna talk about, go away.  Obviously this would need to flag an alert.
-
-# What we can take away from this is that the agent needs to lead this dance.  A POST
-#   can come along like a DJ and change the music, but the agent keeps dancing.
-
-#	sub run {
-	# In:	{
-	#		[r]user => {
-	#			[o]label => '',
-	#			[o]warn => '',
-	#			[o]alert => '',
-	#			[o]ok => '',  <-- proly no need
-	#			[o]info => '',  <-- proly no need
-	#			[o]args => [],  <-- If args, calculates results each time; if not, calculates once
-	#		},
-	#	}
-	#
-	# Out:	[
-	#		{
-	#			[r]user,
-	#			[r]label,
-	#			[r]status,  <-- UNDEF ALERT WARN OK QXFAIL NOINFO INFO
-	#			[o]reason,
-	#			[o]details,
-	#			[o]summary,
-	#			[r]package,
-	#			[o]value,
-	#			[o]extra,
-	#		},
-	#	]
-	# Supported keywords: user, label, status, reason, details, summary, package, value, extra
-	# Anything else is ignored, so put what you want in extra
-# All that above is the Supporting code, technically it's not necessary at all.  technically you just need a run method in your package
-# But, the supporting code will get delivered whether the agent likes it or not, the packages don't have to make use.
-
 sub code {
 	my $self = shift;
 
 	return unless $self->register;
 
+	if ( my $code = $self->recv->{code} ) {
+		# POST is requesting to send code to agent
+		# The POST request might be code already in the DB or it might be code that was supplied via the POST
+	} else {
+		# Agent is requesting to receive code
+		my (%code, %base, %base_code);
+		$_ = $self->db->resultset('Code')->search({agent=>[$self->registration->{uuid},'']}, {order_by=>'agent'});
+		while ( my $code = $_->next ) {
+			$base{$code->base} = $code->base_version if version->parse($code->base_version) > version->parse($base{$code->pkg});
+			$code{code}{$code->pkg} = join "\n", sprintf("package Velicio::Code::%s;", $code->pkg), sprintf("use 'Velicio::%s';", $code->base), $code->code;
+		}
+		$_ = $self->db->resultset('BaseCode')->search({pkg=>{-in=>[keys %base]}});
+		while ( my $base_code = $_->next ) {
+			$base_code{$base_code->pkg} = $base_code->version if version->parse($base_code->version) > version->parse($base_code{$base_code->pkg});
+			$code{base}{$base_code->pkg} = join "\n", sprintf("package Velicio::Base::%s %s;", $base_code->pkg, $base_code->version), $base_code->base
+				if version->parse($base_code->version) > version->parse($base_code{$base_code->pkg});
+		}
+		$self->queue({code=>join "\n", (map { $code{base}{$_} } keys %$code{base}), (map { $code{code}{$_} } keys %$code{code})});
+	}
+}
 
 sub run {
 	my $self = shift;
@@ -320,16 +339,53 @@ sub run {
 	return unless $self->register;
 
 	if ( my $run = $self->recv->{run} ) {
-		my $run;
-		($pkg, $run) = @$pkg;
-		warn "Package ran: $pkg\n";
-		warn Dumper({ran=>$run});
-		my @dt = localtime; $dt[4]++; $dt[5]+=1900;
-		my $dt = sprintf("%04d-%02d-%02d %02d:%02d:%02d", reverse @dt[0..5]);
+		# Server received run results from agent, time to process those run results
+		foreach my $r ( @$run ) {
+			$r->{config_id} or next;
+			my $config = $self->db->resultset('Config')->search({id=>$r->{config_id}, agent=>$self->registration->{uuid}}) or next;
+			warn "Package ran: ", $config->pkg, "\n";
+			warn Dumper({ran=>$r});
+			$self->db->resultset('Runhistory')->create({
+				config_id => $r->{config_id},
+				dt => \'now()',
+				's' => $r->{status},
+				n => $r->{value}
+			});
+			my $c = $self->db->resultset('Runhistory')->search({config_id=>$r->{config_id}})->count;
+			my $ok = $self->db->resultset('Runhistory')->search({config_id=>$r->{config_id}, 's'=>OK})->count;
+	                my $t;
+        	        if ( $t = $self->db->resultset('Runhistory')->search({config_id=>$r->{config_id}, 's'=>{'!='=>$r->{status}}}, {order_by=>'dt desc', rows=>1}) ) {
+                	        if ( $t = $t->next ) {
+                        	        $t = $t->dt;
+	                        }
+        	        }
+			$self->db->resultset('Runresults')->update_or_create({
+				config_id => $r->{config_id},
+				dt => \'now()',
+				's' => $r->{status},
+				ok => sprintf("%.2f", $c?$ok/$c*100:0),
+				t => $t,
+				n => $r->{value},
+				'y' => $->{summary},
+				d => $r->{details}
+			}, {
+				key => 'config_id'
+			});
+		}
+	} else {
+		# Agent is requesting to receive its run configuration
+		#   There's really only one true run configuration.  This run configuration contains a myriad
+		#   of commands, arguments and frequencies.  Group by frequency and run each group in serial.
+		my $run = {};
+		my $configs = $self->db->resultset('Config')->search({agent=>[$self->registration->{uuid},'']}, {order_by=>'seq'});
+		while ( my $config = $configs->next ) {
+			$run->{$config->frequency}->[$#{$run->{$config->frequency}}+1]->{$config->id}->{$_} foreach qw/pkg warn alert args/;
+		}
+		$self->queue({run=>$run});
 	}
 }
 
-sub process {
+sub process { # Process received messages, checking for very specific things
 	my $self = shift;
 
 	#return unless $self->register;
