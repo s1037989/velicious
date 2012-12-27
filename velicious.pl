@@ -125,7 +125,6 @@ websocket '/' => sub {
 	my $self = shift;
 	my $velicious = new Velicious({db=>$self->db, tx=>$self->tx});
 	$velicious->secret(app->secret);
-	$velicious->agent(minimum=>$self->app->config->{agent_minimum}, latest=>$self->app->config->{agent_latest});
 	$self->on(error => sub { warn "Error: $_[1]" });
 	$self->on(message => sub { $velicious->recv($_[1]) });
 	$self->on(finish => sub { $velicious->disconnect("Server disconnected") });

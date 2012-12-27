@@ -92,13 +92,13 @@ __DATA__
 package Velicio::Base::Hydrogen;
 BEGIN {
         use constant {
-                UNDEF => 1000,
-                ALERT => 500, 
+                UNDEF => 950,
+                QXFAIL => 900,
+                ALERT => 550, 
+                NOINFO => 500,
                 WARN => 400,  
-                OK => 300,    
-                QXFAIL => 120,
-                NOINFO => 110,
-                INFO => 100,  
+                OK => 50,    
+                INFO => 10,  
                 DEFAULT_LABEL => 'Default Label',
         };
         sub Qx { my $Qx = shift; my @Qx = split ' ', $Qx, 2; @Qx = qx/which $Qx[0]/ ? map { chomp; $_ } qx($Qx) : undef; @Qx }
@@ -108,6 +108,7 @@ BEGIN {
         our @EXPORT = qw(UNDEF ALERT WARN OK QXFAIL NOINFO INFO DEFAULT_LABEL Qx qxfail);
 }
 
+use CPAN;
 use Digest;
 use Data::Serializer;
 
@@ -115,47 +116,53 @@ use Data::Serializer;
 
 sub run {
 	my $self = shift;
-	my $freq = shift;
 	my $run = shift;
 	return () unless ref $run eq 'HASH';
 
-	my @report = ();
 	my $defaults = $self->defaults;
 	$defaults = {} unless ref $defaults eq 'HASH';
-	foreach my $subscriber ( keys %{$run} ) {
-		next unless ref $run->{$subscriber} eq 'HASH';
 
-		$run->{$subscriber}->{$_} ||= $defaults->{$_} foreach keys %$defaults;
-		#$run->{$subscriber}->{user} = $subscriber;
-		#$run->{$subscriber}->{label} ||= DEFAULT_LABEL || 'Default Label';
-		#warn Dumper($run->{$subscriber});
+	$run->{$_} ||= $defaults->{$_} foreach keys %$defaults;
+	$run->{label} ||= DEFAULT_LABEL || 'Default Label';
 
-		my $results = $self->_results($freq, $run->{$subscriber}->{args});
-		$results = {} unless ref $results eq 'HASH';
-
-		my $report = $self->report($run->{$subscriber}, $results);
-		$report = {} unless ref $report eq 'HASH';
-
-		unless ( exists $report->{status} ) {
-			$report->{status} = UNDEF;
-			$report->{reason} = "Package $self report method missing status";
-		}
-		unless ( grep { $report->{status} == $_ } UNDEF, ALERT, WARN, OK, QXFAIL, NOINFO, INFO ) {
-			$report->{status} = UNDEF;
-			$report->{reason} = "Package $self returned unknown status";
-		}
-		$report->{$_} = $run->{$subscriber}->{$_} foreach grep $_ ne "args", keys %{$run->{$subscriber}};
-		$report->{package} = "$self";
-		push @report, $report;
+	my $results = $self->_results($run->{frequency}, $run->{args});
+	$results = {} unless ref $results eq 'HASH';
+	my $report = $self->report($run, $results);
+	$report = {} unless ref $report eq 'HASH';
+	unless ( exists $report->{status} ) {
+		$report->{status} = UNDEF;
+		$report->{reason} = "Package $self report method missing status";
 	}
-	return @report;
+	unless ( grep { $report->{status} == $_ } UNDEF, ALERT, WARN, OK, QXFAIL, NOINFO, INFO ) {
+		$report->{status} = UNDEF;
+		$report->{reason} = "Package $self returned unknown status";
+	}
+	$report->{$_} //= $run->{$_} foreach grep $_ ne "args", keys %$run;
+	$report->{package} = "$self";
+
+	return $report;
+}
+sub install_and_use {
+	my $module = shift;
+	eval "use $module";
+	if ( $@ ) {
+		CPAN::Shell->install($module);
+		eval "use $module";
+		if ( $@ ) {
+			warn "Tried to install $module but failed\n";
+		} else {
+			warn "Installed and loaded $module\n";
+		}
+	} else {
+		warn "Loaded $module\n";
+	}
 }
 sub defaults {{}}
 sub results {{}}
 sub report {
 	my %report = ();
 	$report{$_} = $_[2]->{$_} foreach grep { $_[2]->{$_} } qw/status reason summary details/;
-	$report{reason} = "Unable process system call" if !$report{reason} && $report{status} == QXFAIL;
+	$report{reason} = "Unable to process system call" if !$report{reason} && $report{status} == QXFAIL;
 	return {%report};
 }
 
@@ -169,12 +176,14 @@ sub _results {
 	$digest->add($ds->serialize(["$self",@args]));
 	$digest = $digest->hexdigest;
 	#warn Dumper($self.$digest);
-	return $self->{__RESULTS}->{$digest}->{results} if exists $self->{__RESULTS}->{$digest} && time < $self->{__RESULTS}->{$digest}->{timestamp} + int($freq/90);
-	warn "Calculating Results! $self\n";
-	return $self->{__RESULTS}->{$digest} = {
-		timestamp => time,
-		results => $self->results(@_)
-	};
+	unless ( exists $self->{__RESULTS}->{$digest} && time < $self->{__RESULTS}->{$digest}->{timestamp} + int($freq/90) ) {
+		#warn "Calculating Results! $self\n";
+		$self->{__RESULTS}->{$digest} = {
+			timestamp => time,
+			results => $self->results(@_)
+		};
+	}
+	return $self->{__RESULTS}->{$digest}->{results};
 }
 
 package Velicio::Action::Touch;

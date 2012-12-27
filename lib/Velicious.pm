@@ -82,7 +82,10 @@
 # All that above is the Supporting code, technically it's not necessary at all.  technically you just need a run method in your package
 # But, the supporting code will get delivered whether the agent likes it or not, the packages don't have to make use.
 
-package Velicious v12.12.22;
+package Velicious v12.12.27;
+
+our $AGENT_MINIMUM = 'v12.12.27';
+our $AGENT_LASTEST = 'v12.12.27';
 
 use version 0.77;
 use Scalar::Util 'blessed';
@@ -141,14 +144,6 @@ sub secret {
 	return $self->{__SECRET} || ref $self;
 }
 
-sub agent {
-	my $self = shift;
-	if ( $_[0] ) {
-		$self->{__AGENT} = ref $_[0] eq 'HASH' ? $_[0] : {@_};
-	}
-	return $self->{__AGENT} || {};
-}
-
 sub tx {
 	my $self = shift;
 	if ( my $tx = shift ) {
@@ -186,7 +181,7 @@ sub recv {
 	if ( $msg && ! ref $msg ) {
 		my $_msg = $msg;
 		$msg = $self->serializer->deserialize($msg);
-		warn Dumper({recv => [$_msg, $msg]});
+		#warn Dumper({recv => [$_msg, $msg]});
 		# The protocol is thus:
 		# Receive -> Process -> Send
 		# Every received message results in sending a response
@@ -213,31 +208,45 @@ sub serializer {
 	}
 }
 
+sub process { # Process received messages, checking for very specific things
+	my $self = shift;
+
+	$self->register;
+
+	$self->code; # Agent is requesting to receive its code
+	             #   Its code is all packages from all users
+	             # POST is sending code
+	             #   Only authorized users can send code
+	$self->run;  # Agent is requesting run configuration
+	             #   Does this after registration and on a schedule
+	             # POST is sending run configuration
+	             #   Only authorized users can send code
+}
+
+###
+
 sub upgrade_agent {
 	my $self = shift;
 
 	if ( my $version = $self->recv->{version} ) {
-		my (undef, $cname, $cversion) = ($version =~ /^((.*?)\s+)?(\d{2}\D\d{2}\D\d{2})$/);
-		my ($_current) = $cversion;
-		my (undef, $mname, $mversion) = ($self->agent->{minimum} =~ /^((.*?)\s+)?(\d{2}\D\d{2}\D\d{2})$/);
-		my $_min = $mversion;
-		my (undef, $lname, $lversion) = ($self->agent->{latest} =~ /^((.*?)\s+)?(\d{2}\D\d{2}\D\d{2})$/);
-		my $_latest = $lversion;
-		unless ( $_current && $_min && $_latest ) {
-			warn "Agent Versions not defined\n";
-			return 2;
-		}
-		$_current =~ s/\D//g;
-		$_min =~ s/\D//g;
-		$_latest =~ s/\D//g;
+		my $name;
+		($name, $version) = ($version =~ /^(\S+)\s+(\S+)$/);
 		my $upgrade = {
-			min => $self->agent->{minimum},
-			latest => $self->agent->{latest},
+			min => $AGENT_MINIMUM,
+			latest => $AGENT_LATEST,
 			current => $version,
-			can_upgrade => $_current < $_latest ? 1 : 0,
-			must_upgrade => $_current < $_min ? 1 : 0,
+			can_upgrade => 0,
+			must_upgrade => 0,
 			url => 'http://use.velicio.us',
 		};
+		warn "Agent version: $name -=- $version\n" if $self->debug('V');
+		if ( version->parse($version) < version->parse($AGENT_MINIMUM) ) {
+			$upgrade->{can_upgrade} = 1;
+			$upgrade->{must_upgrade} = 1;
+		} elsif ( version->parse($version) < version->parse($AGENT_LATEST) ) {
+			$upgrade->{can_upgrade} = 1;
+			$upgrade->{must_upgrade} = 0;
+		}
 		$self->queue({upgrade=>$upgrade});
 		if ( $upgrade->{must_upgrade} ) {
 			warn "Agent must upgrade\n";
@@ -247,6 +256,8 @@ sub upgrade_agent {
 	}
 	return 0;
 }
+
+###
 
 sub register {
 	my $self = shift;
@@ -308,6 +319,8 @@ sub deserialize_registration {
 	}
 }
 
+###
+
 sub code {
 	my $self = shift;
 
@@ -334,6 +347,8 @@ sub code {
 	}
 }
 
+###
+
 sub run {
 	my $self = shift;
 
@@ -341,11 +356,21 @@ sub run {
 
 	if ( my $run = $self->recv->{run} ) {
 		# Server received run results from agent, time to process those run results
+		use constant {
+			UNDEF => 950,
+			QXFAIL => 900,
+			ALERT => 550,
+			NOINFO => 500,
+			WARN => 400,
+			OK => 50,
+			INFO => 10,
+			DEFAULT_LABEL => 'Default Label',
+		};
 		foreach my $r ( @$run ) {
 			$r->{id} or next;
 			my $config = $self->db->resultset('Config')->find({id=>$r->{id}, agent=>$self->registration->{uuid}}) or next;
-			warn "Package ran: ", $config->pkg, "\n";
-			warn Dumper({ran=>$r});
+			#warn "Package ran: ", $config->pkg, "\n";
+			#warn Dumper({ran=>$r});
 			$self->db->resultset('Runhistory')->create({
 				config_id => $r->{id},
 				dt => \'now()',
@@ -353,7 +378,7 @@ sub run {
 				n => $r->{value}
 			});
 			my $c = $self->db->resultset('Runhistory')->search({config_id=>$r->{id}})->count;
-			my $ok = $self->db->resultset('Runhistory')->search({config_id=>$r->{id}, 's'=>OK})->count;
+			my $ok = $self->db->resultset('Runhistory')->search({config_id=>$r->{id}, 's'=>{'<'=>100}})->count;
 	                my $t;
         	        if ( $t = $self->db->resultset('Runhistory')->search({config_id=>$r->{id}, 's'=>{'!='=>$r->{status}}}, {order_by=>'dt desc', rows=>1}) ) {
                 	        if ( $t = $t->next ) {
@@ -381,27 +406,12 @@ sub run {
 		my $configs = $self->db->resultset('Config')->search({agent=>[$self->registration->{uuid},'']}, {order_by=>'seq'});
 		while ( my $config = $configs->next ) {
 			my %config = ();
-			$config{$_} = $config->$_ foreach qw/id pkg warn alert args/;
-			$run->{$config->frequency||0}->[$#{$run->{$config->frequency||0}}+1]->{$config->pkg}->{$config->user} = {%config};
+			$config{$_} = $config->$_ foreach qw/frequency id warn alert pkg args/;
+			$run->{$config->frequency||0}->[$#{$run->{$config->frequency||0}}+1] = {%config};
 			#warn Dumper({run=>$run});
 		}
 		$self->queue({run=>$run});
 	}
-}
-
-sub process { # Process received messages, checking for very specific things
-	my $self = shift;
-
-	$self->register;
-
-	$self->code; # Agent is requesting to receive its code
-	             #   Its code is all packages from all users
-	             # POST is sending code
-	             #   Only authorized users can send code
-	$self->run;  # Agent is requesting run configuration
-	             #   Does this after registration and on a schedule
-	             # POST is sending run configuration
-	             #   Only authorized users can send code
 }
 
 1;
