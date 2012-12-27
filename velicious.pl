@@ -2,8 +2,6 @@ use Mojolicious::Lite;
 use Mojo::JSON;
 use Mojolicious::Sessions;
 
-use Velicious;
-
 use MIME::Base64;
 use Digest::MD5 qw/md5_hex/;
 use Switch;
@@ -14,6 +12,8 @@ use FindBin qw($Bin);
 use lib "$Bin/lib";
 use subs qw/analyze/;
 use Schema;
+
+use Velicious;
 
 # $ENV{DBIC_TRACE}=1;  # If mode == Dev
 my $basename = basename $0, '.pl';

@@ -34,7 +34,7 @@ my $dbh = DBI->connect('DBI:mysql:database=velite;host=localhost', 'velite', 've
 my $dbase = $dbh->prepare("delete from base_code where pkg=? and version=?");
 my $base = $dbh->prepare("insert into base_code values (?, ?, now(), null, ?)");
 my $dcode = $dbh->prepare("delete from code where agent='' and pkg=?");
-my $code = $dbh->prepare("insert into code values ('', ?, '', ?, '', now(), null, ?)");
+my $code = $dbh->prepare("insert into code values ('', ?, ?, ?, now(), null, ?)");
 
 my $package;
 my $version;
@@ -55,9 +55,10 @@ while ( <DATA> ) {
 		} elsif ( $type eq 'code' && $package && @code ) {
 			print "Adding code: $package; using $use_base_package\n";
 			$dcode->execute($package);
-			$code->execute($package, $use_base_package, join("\n",@code));
+			$code->execute($package, $use_base_package, $base_version, join("\n",@code));
+			$use_base_package = '';
 		}
-		if ( /^package Velicio::(\w+)( ([\d.]+))?;$/ ) { # Set version of package
+		if ( /^package Velicio::Base::(\w+)( ([\d.]+))?;$/ ) { # Set version of package
 			$type = 'base';
 			@code = ();
 			$base_package = $1;
@@ -69,7 +70,7 @@ while ( <DATA> ) {
 			$package = $1;
 			print "Starting code generation for $package\n";
 		}
-	} elsif ( /^use base 'Velicio::(\w+)';$/ ) { # Require this minimum version of package
+	} elsif ( /^use base 'Velicio::Base::(\w+)';$/ ) { # Require this minimum version of package
 		$use_base_package = $1;
 		print "Requiring base $use_base_package\n";
 	} else {
@@ -84,11 +85,11 @@ if ( $type eq 'base' && $base_package && @code ) {
 } elsif ( $type eq 'code' && $package && @code ) {
 	print "Adding code: $package; using $use_base_package\n";
 	$dcode->execute($package);
-	$code->execute($package, $use_base_package, join("\n",@code));
+	$code->execute($package, $use_base_package, $base_version, join("\n",@code));
 }
 
 __DATA__
-package Velicio::Hydrogen 12.12.22;
+package Velicio::Base::Hydrogen;
 BEGIN {
         use constant {
                 UNDEF => 1000,
@@ -114,6 +115,7 @@ use Data::Serializer;
 
 sub run {
 	my $self = shift;
+	my $freq = shift;
 	my $run = shift;
 	return () unless ref $run eq 'HASH';
 
@@ -124,11 +126,11 @@ sub run {
 		next unless ref $run->{$subscriber} eq 'HASH';
 
 		$run->{$subscriber}->{$_} ||= $defaults->{$_} foreach keys %$defaults;
-		$run->{$subscriber}->{user} = $subscriber;
-		$run->{$subscriber}->{label} ||= DEFAULT_LABEL || 'Default Label';
+		#$run->{$subscriber}->{user} = $subscriber;
+		#$run->{$subscriber}->{label} ||= DEFAULT_LABEL || 'Default Label';
 		#warn Dumper($run->{$subscriber});
 
-		my $results = $self->_results($run->{$subscriber}->{args});
+		my $results = $self->_results($freq, $run->{$subscriber}->{args});
 		$results = {} unless ref $results eq 'HASH';
 
 		my $report = $self->report($run->{$subscriber}, $results);
@@ -159,6 +161,7 @@ sub report {
 
 sub _results {
 	my $self = shift;
+	my $freq = shift;
 	my $args = shift;
 	my @args = ref $args eq 'ARRAY' ? @$args :();
 	my $ds = new Data::Serializer;
@@ -166,13 +169,16 @@ sub _results {
 	$digest->add($ds->serialize(["$self",@args]));
 	$digest = $digest->hexdigest;
 	#warn Dumper($self.$digest);
-	return $self->{__RESULTS}->{$digest} if exists $self->{__RESULTS}->{$digest};
+	return $self->{__RESULTS}->{$digest}->{results} if exists $self->{__RESULTS}->{$digest} && time < $self->{__RESULTS}->{$digest}->{timestamp} + int($freq/90);
 	warn "Calculating Results! $self\n";
-	return $self->{__RESULTS}->{$digest} = $self->results(@_);
+	return $self->{__RESULTS}->{$digest} = {
+		timestamp => time,
+		results => $self->results(@_)
+	};
 }
 
 package Velicio::Action::Touch;
-use base 'Velicio::Hydrogen';
+use base 'Velicio::Base::Hydrogen';
 
 sub touch {
 	my %a = map{$_=>1}@_;
@@ -202,7 +208,7 @@ sub report {
 }
 
 package Velicio::Status::DaysUp;
-use base 'Velicio::Hydrogen';
+use base 'Velicio::Base::Hydrogen';
 
 # [o] Used to set Sensor / Status threshold defaults
 sub defaults {
@@ -247,7 +253,7 @@ sub report {
 }
 
 package Velicio::Status::CheckIP;
-use base 'Velicio::Hydrogen';
+use base 'Velicio::Base::Hydrogen';
 
 use Mojo::UserAgent;
 
@@ -258,14 +264,14 @@ sub results {
 }
 
 package Velicio::Status::Timestamp;
-use base 'Velicio::Hydrogen';
+use base 'Velicio::Base::Hydrogen';
 
 sub results {
 	{status=>INFO, details=>scalar localtime}
 }
 
 package Velicio::Status::VelicioVersion;
-use base 'Velicio::Hydrogen';
+use base 'Velicio::Base::Hydrogen';
 
 sub defaults {{label => 'System Information'}}
 
@@ -274,7 +280,7 @@ sub results {
 }
 
 package Velicio::Status::ProcessTree;
-use base 'Velicio::Hydrogen';
+use base 'Velicio::Base::Hydrogen';
 
 sub defaults {{label => 'System Information'}}
 
@@ -284,7 +290,7 @@ sub results {
 }
 
 package Velicio::Status::SystemInformation;
-use base 'Velicio::Hydrogen';
+use base 'Velicio::Base::Hydrogen';
 
 sub defaults {{label => 'System Information'}}
 
@@ -294,7 +300,7 @@ sub results {
 }
 
 package Velicio::Status::UpTime;
-use base 'Velicio::Hydrogen';
+use base 'Velicio::Base::Hydrogen';
 
 sub defaults {{label => 'System Information'}}
 
@@ -304,7 +310,7 @@ sub results {
 }
 
 package Velicio::Status::IsVirtual;
-use base 'Velicio::Hydrogen';
+use base 'Velicio::Base::Hydrogen';
 
 sub defaults {{label => 'System Information'}}
 
@@ -314,7 +320,7 @@ sub results {
 }
 
 package Velicio::Status::MemoryFree;
-use base 'Velicio::Hydrogen';
+use base 'Velicio::Base::Hydrogen';
 
 sub defaults {{label => 'System Information'}}
 
@@ -324,7 +330,7 @@ sub results {
 }
 
 package Velicio::Status::LastLogin;
-use base 'Velicio::Hydrogen';
+use base 'Velicio::Base::Hydrogen';
 
 sub defaults {{label => 'System Information'}}
 
@@ -334,7 +340,7 @@ sub results {
 }
 
 package Velicio::Status::ListeningPorts;
-use base 'Velicio::Hydrogen';
+use base 'Velicio::Base::Hydrogen';
 
 sub defaults {{label => 'System Information'}}
 
@@ -344,7 +350,7 @@ sub results {
 }
 
 package Velicio::Status::Routes;
-use base 'Velicio::Hydrogen';
+use base 'Velicio::Base::Hydrogen';
 
 sub defaults {{label => 'System Information'}}
 
@@ -354,7 +360,7 @@ sub results {
 }
 
 package Velicio::Status::CurrentLogin;
-use base 'Velicio::Hydrogen';
+use base 'Velicio::Base::Hydrogen';
 
 sub defaults {{label => 'System Information'}}
 
@@ -364,7 +370,7 @@ sub results {
 }
 
 package Velicio::Status::DiskUsage;
-use base 'Velicio::Hydrogen';
+use base 'Velicio::Base::Hydrogen';
 
 sub defaults {{label => 'System Information'}}
 
@@ -376,7 +382,7 @@ sub results {
 }
 
 package Velicio::Status::NetworkInterfaces;
-use base 'Velicio::Hydrogen';
+use base 'Velicio::Base::Hydrogen';
 
 sub defaults {{label => 'System Information'}}
 

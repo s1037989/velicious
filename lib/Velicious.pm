@@ -82,7 +82,7 @@
 # All that above is the Supporting code, technically it's not necessary at all.  technically you just need a run method in your package
 # But, the supporting code will get delivered whether the agent likes it or not, the packages don't have to make use.
 
-package Velicious 12.12.22;
+package Velicious v12.12.22;
 
 use version 0.77;
 use Scalar::Util 'blessed';
@@ -162,6 +162,7 @@ sub queue {
 	my $self = shift;
 	my $msg = shift; 
 	if ( $msg && ref $msg eq 'HASH' ) {
+		#warn Dumper({queueing => $msg});
 		push @{$self->{__SEND_QUEUE}}, $msg;
 	}
 }
@@ -185,7 +186,7 @@ sub recv {
 	if ( $msg && ! ref $msg ) {
 		my $_msg = $msg;
 		$msg = $self->serializer->deserialize($msg);
-		#warn Dumper({recv => [$_msg, $msg]});
+		warn Dumper({recv => [$_msg, $msg]});
 		# The protocol is thus:
 		# Receive -> Process -> Send
 		# Every received message results in sending a response
@@ -266,7 +267,7 @@ sub register {
 			warn "Received Registration doesn't exist or signature doesn't match\n";
 			$self->unregister;
 		} else {
-			$self->db->resultset('Config')->create({agent=>$self->registration->{uuid},ctime=>\'now()',pkg=>'Commands::Touch',args=>['/tmp/jklkdldlklkjdkjd']});
+			#$self->db->resultset('Config')->create({agent=>$self->registration->{uuid},ctime=>\'now()'});
 		}
 	} else {
 		warn "Generating Registration and Sending to Client\n";
@@ -310,57 +311,57 @@ sub deserialize_registration {
 sub code {
 	my $self = shift;
 
-	return unless $self->register;
+	return unless $self->registered;
 
 	if ( my $code = $self->recv->{code} ) {
 		# POST is requesting to send code to agent
 		# The POST request might be code already in the DB or it might be code that was supplied via the POST
-	} else {
+	} elsif ( exists $self->recv->{code} ) {
 		# Agent is requesting to receive code
 		my (%code, %base, %base_code);
 		$_ = $self->db->resultset('Code')->search({agent=>[$self->registration->{uuid},'']}, {order_by=>'agent'});
 		while ( my $code = $_->next ) {
-			$base{$code->base} = $code->base_version if version->parse($code->base_version) > version->parse($base{$code->pkg});
-			$code{code}{$code->pkg} = join "\n", sprintf("package Velicio::Code::%s;", $code->pkg), sprintf("use 'Velicio::%s';", $code->base), $code->code;
+			$base{$code->base} = $code->base_version if $code->base && $code->base_version && version->parse($code->base_version) >= version->parse($base{$code->pkg});
+			$code{code}{$code->pkg} = join "\n", sprintf("package Velicio::Code::%s;", $code->pkg), ($code->base?sprintf("BEGIN { use base 'Velicio::Base::%s'; Velicio::Base::%s->import; }", $code->base, $code->base):''), $code->code;
 		}
 		$_ = $self->db->resultset('BaseCode')->search({pkg=>{-in=>[keys %base]}});
 		while ( my $base_code = $_->next ) {
-			$base_code{$base_code->pkg} = $base_code->version if version->parse($base_code->version) > version->parse($base_code{$base_code->pkg});
-			$code{base}{$base_code->pkg} = join "\n", sprintf("package Velicio::Base::%s %s;", $base_code->pkg, $base_code->version), $base_code->base
-				if version->parse($base_code->version) > version->parse($base_code{$base_code->pkg});
+			$base_code{$base_code->pkg} = $base_code->version if version->parse($base_code->version) >= version->parse($base_code{$base_code->pkg});
+			$code{base}{$base_code->pkg} = join "\n", sprintf("package Velicio::Base::%s %s;", $base_code->pkg, $base_code->version), $base_code->code
+				if version->parse($base_code->version) >= version->parse($base_code{$base_code->pkg});
 		}
-		$self->queue({code=>join "\n", (map { $code{base}{$_} } keys %$code{base}), (map { $code{code}{$_} } keys %$code{code})});
+		$self->queue({code=>join "\n", (map { $code{base}{$_} } keys %{$code{base}}), (map { $code{code}{$_} } keys %{$code{code}})});
 	}
 }
 
 sub run {
 	my $self = shift;
 
-	return unless $self->register;
+	return unless $self->registered;
 
 	if ( my $run = $self->recv->{run} ) {
 		# Server received run results from agent, time to process those run results
 		foreach my $r ( @$run ) {
-			$r->{config_id} or next;
-			my $config = $self->db->resultset('Config')->search({id=>$r->{config_id}, agent=>$self->registration->{uuid}}) or next;
+			$r->{id} or next;
+			my $config = $self->db->resultset('Config')->find({id=>$r->{id}, agent=>$self->registration->{uuid}}) or next;
 			warn "Package ran: ", $config->pkg, "\n";
 			warn Dumper({ran=>$r});
 			$self->db->resultset('Runhistory')->create({
-				config_id => $r->{config_id},
+				config_id => $r->{id},
 				dt => \'now()',
 				's' => $r->{status},
 				n => $r->{value}
 			});
-			my $c = $self->db->resultset('Runhistory')->search({config_id=>$r->{config_id}})->count;
-			my $ok = $self->db->resultset('Runhistory')->search({config_id=>$r->{config_id}, 's'=>OK})->count;
+			my $c = $self->db->resultset('Runhistory')->search({config_id=>$r->{id}})->count;
+			my $ok = $self->db->resultset('Runhistory')->search({config_id=>$r->{id}, 's'=>OK})->count;
 	                my $t;
-        	        if ( $t = $self->db->resultset('Runhistory')->search({config_id=>$r->{config_id}, 's'=>{'!='=>$r->{status}}}, {order_by=>'dt desc', rows=>1}) ) {
+        	        if ( $t = $self->db->resultset('Runhistory')->search({config_id=>$r->{id}, 's'=>{'!='=>$r->{status}}}, {order_by=>'dt desc', rows=>1}) ) {
                 	        if ( $t = $t->next ) {
                         	        $t = $t->dt;
 	                        }
         	        }
-			$self->db->resultset('Runresults')->update_or_create({
-				config_id => $r->{config_id},
+			$self->db->resultset('Runresult')->update_or_create({
+				config_id => $r->{id},
 				dt => \'now()',
 				's' => $r->{status},
 				ok => sprintf("%.2f", $c?$ok/$c*100:0),
@@ -372,14 +373,17 @@ sub run {
 				key => 'config_id'
 			});
 		}
-	} else {
+	} elsif ( exists $self->recv->{run} ) {
 		# Agent is requesting to receive its run configuration
 		#   There's really only one true run configuration.  This run configuration contains a myriad
 		#   of commands, arguments and frequencies.  Group by frequency and run each group in serial.
 		my $run = {};
 		my $configs = $self->db->resultset('Config')->search({agent=>[$self->registration->{uuid},'']}, {order_by=>'seq'});
 		while ( my $config = $configs->next ) {
-			$run->{$config->frequency}->[$#{$run->{$config->frequency}}+1]->{$config->id}->{$_} foreach qw/pkg warn alert args/;
+			my %config = ();
+			$config{$_} = $config->$_ foreach qw/id pkg warn alert args/;
+			$run->{$config->frequency||0}->[$#{$run->{$config->frequency||0}}+1]->{$config->pkg}->{$config->user} = {%config};
+			#warn Dumper({run=>$run});
 		}
 		$self->queue({run=>$run});
 	}
@@ -388,7 +392,7 @@ sub run {
 sub process { # Process received messages, checking for very specific things
 	my $self = shift;
 
-	#return unless $self->register;
+	$self->register;
 
 	$self->code; # Agent is requesting to receive its code
 	             #   Its code is all packages from all users
