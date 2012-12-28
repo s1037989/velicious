@@ -153,6 +153,19 @@ sub tx {
 	return $clients->{$self->id}->{tx}->can('send') ? $clients->{$self->id}->{tx} : undef;
 }
 
+sub debug {
+	my $self = shift;
+	my $level = shift;
+	return 0 unless $ENV{DEBUG};
+	use Data::Dumper;
+	return $ENV{DEBUG} =~ /$level/;
+}
+ 
+sub log {
+	my $self = shift;
+	warn shift."\n"; 
+}
+
 sub queue {
 	my $self = shift;
 	my $msg = shift; 
@@ -330,7 +343,7 @@ sub code {
 		# POST is requesting to send code to agent
 		# The POST request might be code already in the DB or it might be code that was supplied via the POST
 	} elsif ( exists $self->recv->{code} ) {
-		# Agent is requesting to receive code
+		# Agent is requesting to receive code, server will look up available code in the DB
 		my (%code, %base, %base_code);
 		$_ = $self->db->resultset('Code')->search({agent=>[$self->registration->{uuid},'']}, {order_by=>'agent'});
 		while ( my $code = $_->next ) {
