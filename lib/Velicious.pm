@@ -1,3 +1,6 @@
+# TODO: Auto-purge agents and ALL devices, configs, results, history, etc when no users subscribed to the agent (i.e. no agent configs)
+# TODO: Compress history by not repeating entries that don't change (will require a new $ok and $t formula)
+
 # The life of an agent:
 #   1) Send/Request Registration
 #      A) Before registration server checks version (protocol) compatibility
@@ -82,10 +85,20 @@
 # All that above is the Supporting code, technically it's not necessary at all.  technically you just need a run method in your package
 # But, the supporting code will get delivered whether the agent likes it or not, the packages don't have to make use.
 
-package Velicious v12.12.27;
+               # Received a run configuration
+                #    my $run = {
+                #       frequency => [
+                #          { frequency=>f,id=>'config_id',warn=>'warn',alert=>'alert',pkg=>'pkg',args=>[args] },
+                #          { more... },
+                #       ],
+                #       frequencies => [],
+                #     };
 
-our $AGENT_MINIMUM = 'v12.12.27';
-our $AGENT_LASTEST = 'v12.12.27';
+package Velicious;
+
+our $VERSION='v12.12.27';
+our $AGENT_MINIMUM = 'v12.12.28';
+our $AGENT_LATEST = 'v12.12.28';
 
 use version 0.77;
 use Scalar::Util 'blessed';
@@ -226,6 +239,8 @@ sub process { # Process received messages, checking for very specific things
 
 	$self->register;
 
+	$self->last_seen;
+
 	$self->code; # Agent is requesting to receive its code
 	             #   Its code is all packages from all users
 	             # POST is sending code
@@ -234,6 +249,15 @@ sub process { # Process received messages, checking for very specific things
 	             #   Does this after registration and on a schedule
 	             # POST is sending run configuration
 	             #   Only authorized users can send code
+}
+
+###
+
+# Ideally this would run last and only if nothing else has updated the mtime.
+# Ideally, the agent mtime should be modifed by the other functions (e.g. code and run).
+sub last_seen {
+	my $self = shift;
+	$self->db->resultset('Agent')->find({agent=>$self->registration->{uuid}})->update({mtime=>undef});
 }
 
 ###
@@ -252,7 +276,7 @@ sub upgrade_agent {
 			must_upgrade => 0,
 			url => 'http://use.velicio.us',
 		};
-		warn "Agent version: $name -=- $version\n" if $self->debug('V');
+		warn "Agent version: $name -=- $version\nPerl version: $perl_version\n" if $self->debug('V');
 		if ( version->parse($version) < version->parse($AGENT_MINIMUM) ) {
 			$upgrade->{can_upgrade} = 1;
 			$upgrade->{must_upgrade} = 1;
@@ -304,6 +328,10 @@ sub register {
 		$ctx->add($self->registration->{uuid});
 		$self->db->resultset('DeviceSignature')->create({device=>$self->registration->{uuid},sig=>$ctx->hexdigest});
 	}
+
+	if ( my $perl_version = $self->recv->{perl_version} ) {
+		$self->registration->{perl_version} = $perl_version;
+	}
 }
 sub unregister { my $self = shift; delete $clients->{$self->id}->{__REGISTRATION}; }
 sub registered { my $self = shift; $clients->{$self->id}->{__REGISTRATION} }
@@ -353,8 +381,13 @@ sub code {
 		$_ = $self->db->resultset('BaseCode')->search({pkg=>{-in=>[keys %base]}});
 		while ( my $base_code = $_->next ) {
 			$base_code{$base_code->pkg} = $base_code->version if version->parse($base_code->version) >= version->parse($base_code{$base_code->pkg});
-			$code{base}{$base_code->pkg} = join "\n", sprintf("package Velicio::Base::%s %s;", $base_code->pkg, $base_code->version), $base_code->code
-				if version->parse($base_code->version) >= version->parse($base_code{$base_code->pkg});
+			if ( version->parse($self->registration->{perl_version}) >= version->parse('v5.12.0') ) {
+				$code{base}{$base_code->pkg} = join "\n", sprintf("package Velicio::Base::%s %s;", $base_code->pkg, $base_code->version), $base_code->code
+					if version->parse($base_code->version) >= version->parse($base_code{$base_code->pkg});
+			} else {
+				$code{base}{$base_code->pkg} = join "\n", sprintf("package Velicio::Base::%s;\nour \$VERSION='%s';", $base_code->pkg, $base_code->version), $base_code->code
+					if version->parse($base_code->version) >= version->parse($base_code{$base_code->pkg});
+			}
 		}
 		$self->queue({code=>join "\n", (map { $code{base}{$_} } keys %{$code{base}}), (map { $code{code}{$_} } keys %{$code{code}})});
 	}

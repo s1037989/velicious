@@ -1,3 +1,5 @@
+require 5.10.1;
+
 use Mojolicious::Lite;  
 use Mojo::JSON;
 use Mojolicious::Sessions;
@@ -87,8 +89,8 @@ plugin 'authorization', {
 # TODO: HeaderCondition host -> X-Forwarded-Host||Host
 #get '/' => (host => qr/^use\.velicio\.us$/) => 'get-velicio';
 #get '/' => (host => qr/^get\.velicio\.us$/) => 'get-velicious';
-get '/' => [format => 0] => (headers => {'X-Forwarded-Host' => qr/^use\.velicio\.us$/}) => {format=>'text', template=>'get-velicio'};
-get '/' => [format => 0] => (headers => {'X-Forwarded-Host' => qr/^get\.velicio\.us$/}) => {format=>'text', template=>'get-velicious'};
+get '/' => [format => 0] => (headers => {'X-Forwarded-Host' => qr/^use\.((\w+)\.)?velicio\.us$/}) => {format=>'text', template=>'get-velicio'};
+get '/' => [format => 0] => (headers => {'X-Forwarded-Host' => qr/^get\.((\w+)\.)?velicio\.us$/}) => {format=>'text', template=>'get-velicious'};
 get '/' => 'index';
 
 any '/login' => sub {
@@ -477,15 +479,10 @@ Password: <%= password_field 'password' %><br />
 DENIED
 
 @@ get-velicio.text.ep
-#!/bin/sh
-sudo rm -rf /etc/cemosshe* /usr/local/lib/cemosshe* /etc/cron.d/cemosshe /etc/cron.daily/*-cemosshe /tmp/cemosshe* /var/lib/cemosshe* /var/run/cemosshe*
-sudo apt-get -y install libjson-perl libjson-any-perl libschedule-at-perl libfile-touch-perl
+# sudo rm -rf /etc/cemosshe* /usr/local/lib/cemosshe* /etc/cron.d/cemosshe /etc/cron.daily/*-cemosshe /tmp/cemosshe* /var/lib/cemosshe* /var/run/cemosshe*
+# sudo apt-get -y install libjson-perl libjson-any-perl libschedule-at-perl libfile-touch-perl
 # How to remove old files that are no longer used by Velicio?
-curl -f -s http://velicio.us/s/velicio.tar.gz | tar xz -C /tmp
-dir=$(pwd)
-cd /tmp/velicio-*
-make test && sudo make install
-cd $dir
+curl -L cpanmin.us | perl - -n http://velicio.us/s/Velicio-<%= $Velicious::AGENT_LATEST %>.tar.gz
 
 @@ get-velicious.text.ep
 #!/bin/sh
